@@ -30,6 +30,7 @@ extern int kstat(char* path, struct stat* buf);
 extern int kstat_t(char* path, struct stat* buf, struct thread* td);
 extern int kunlink(char* path);
 extern int ksetuid(uid_t uid);
+int ksetuid_t(uid_t uid, struct thread* td);
 extern int kptrace(int req, pid_t pid, caddr_t addr, int data);
 extern int kkill(int pid, int signum);
 extern int kdup2(int oldd, int newd);
@@ -43,3 +44,5 @@ extern caddr_t kmmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_
 extern int kmunmap(void *addr, size_t len);
 extern int kwait4(int pid, int *status, int options, struct rusage *rusage);
 extern int ksetsockopt(int socket, int level, int name, caddr_t val, int valsize);
+extern int kftruncate(int fd, off_t length);
+extern pid_t krfork_t(int flags, struct thread* td);

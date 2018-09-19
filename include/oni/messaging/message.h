@@ -1,7 +1,3 @@
-
-
-
-
 #pragma once
 #include <oni/utils/types.h>
 
@@ -11,14 +7,26 @@ struct allocation_t;
 
 enum MSG_CATEGORY
 {
+	// Message has no category, this is considered invalid
 	RPCCAT_NONE = 0,
+
+	// Mira's system messages
 	RPCCAT_SYSTEM,
+
+	// Logging messages
 	RPCCAT_LOG,
+
+	// Debugger messages
 	RPCCAT_DBG,
+
+	// File messages
 	RPCCAT_FILE,
+
+	// Command messages
 	RPCCAT_CMD,
+
+	// Maximum amount of categories that are allowed, otherwise message struct needs changing
 	RPCCAT_MAX = 14,
-	RPCCAT_COUNT
 };
 
 struct message_header_t
@@ -42,17 +50,10 @@ struct message_header_t
 	uint64_t reserved : 7;
 };
 
-struct message_t
-{
-	// Initial header
-	struct message_header_t header;
+//void message_init(struct message_header_t* message, int32_t socket);
+//struct allocation_t* message_initParse(struct message_header_t* header, int32_t socket);
 
-	// Socket descritpr
-	int32_t socket;
+struct thread;
+struct rpcserver_t;
 
-	// Payload
-	void* payload;
-};
-
-void message_init(struct message_t* message, int32_t socket);
-struct allocation_t* message_initParse(struct message_header_t* header, int32_t socket);
+int32_t rpcserver_findSocketFromThread(struct rpcserver_t* server, struct thread* td);

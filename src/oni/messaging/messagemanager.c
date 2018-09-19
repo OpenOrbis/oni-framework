@@ -5,8 +5,23 @@
 #include <oni/utils/memory/allocator.h>
 #include <oni/utils/logger.h>
 #include <oni/utils/kdlsym.h>
+#include <oni/utils/ref.h>
+
+#include <oni/framework.h>
 
 void __dec(struct allocation_t* allocation);
+
+void* message_getData(struct message_header_t* message)
+{
+	if (!message)
+		return NULL;
+
+	if (message->payloadSize == 0)
+		return NULL;
+
+	// The data starts right after the message
+	return ((uint8_t*)message) + sizeof(*message);
+}
 
 void messagemanager_init(struct messagemanager_t* manager)
 {
@@ -73,7 +88,7 @@ struct messagecategory_t* messagemanager_getCategory(struct messagemanager_t* ma
 	if (!manager)
 		return 0;
 
-	if (category >= RPCCAT_COUNT)
+	if (category >= RPCCAT_MAX)
 		return 0;
 
 	struct messagecategory_t* rpccategory = 0;
@@ -104,7 +119,7 @@ int32_t messagemanager_registerCallback(struct messagemanager_t* manager, uint32
 		return 0;
 
 	// Verify the listener category
-	if (callbackCategory >= RPCCAT_COUNT)
+	if (callbackCategory >= RPCCAT_MAX)
 		return 0;
 
 	struct messagecategory_t* category = messagemanager_getCategory(manager, callbackCategory);
@@ -154,7 +169,7 @@ int32_t messagemanager_unregisterCallback(struct messagemanager_t* manager, int3
 		return false;
 
 	// Verify the listener category
-	if (callbackCategory >= RPCCAT_COUNT)
+	if (callbackCategory >= RPCCAT_MAX)
 		return false;
 
 	struct messagecategory_t* category = messagemanager_getCategory(manager, callbackCategory);
@@ -192,37 +207,29 @@ int32_t messagemanager_unregisterCallback(struct messagemanager_t* manager, int3
 	return false;
 }
 
-void messagemanager_sendMessage(struct messagemanager_t* manager, struct allocation_t* msg)
+void messagemanager_sendMessageInternal(struct ref_t* msg)
 {
-	if (!manager || !msg)
+	// Verify the message manager and message are valid
+	if (!gFramework || !gFramework->messageManager || !msg)
 		return;
 
-	struct message_t* message = __get(msg);
+	struct messagemanager_t* manager = gFramework->messageManager;
+
+	struct message_header_t* message = ref_getDataAndAcquire(msg);
 	if (!message)
 	{
 		WriteLog(LL_Error, "could not get reference to message");
 		return; // On initial get, don't jump to cleanup
 	}
 
-	// We forward all replies
-	if (message->header.request == false && message->socket != -1)
+	// Validate our message category
+	if (message->category >= RPCCAT_MAX)
 	{
-		WriteLog(LL_Debug, "[+] Sending network response back to PC");
-		kwrite(message->socket, &message->header, sizeof(message->header));
-
-		if (message->header.payloadSize > 0 && message->payload != NULL && message->header.error_type == 0)
-			kwrite(message->socket, message->payload, message->header.payloadSize);
-
+		WriteLog(LL_Error, "[-] invalid message category: %d max: %d", message->category, RPCCAT_MAX);
 		goto cleanup;
 	}
 
-	if (message->header.category >= RPCCAT_COUNT)
-	{
-		WriteLog(LL_Error, "[-] invalid message category: %d max: %d", message->header.category, RPCCAT_COUNT);
-		goto cleanup;
-	}
-
-	struct messagecategory_t* category = messagemanager_getCategory(manager, message->header.category);
+	struct messagecategory_t* category = messagemanager_getCategory(manager, message->category);
 	if (!category)
 	{
 		WriteLog(LL_Debug, "[-] could not get dispatcher category");
@@ -240,7 +247,7 @@ void messagemanager_sendMessage(struct messagemanager_t* manager, struct allocat
 			continue;
 
 		// Check the type of the message
-		if (l_Callback->type != message->header.error_type)
+		if (l_Callback->type != message->error_type)
 			continue;
 
 		// Call the callback with the provided message
@@ -249,85 +256,105 @@ void messagemanager_sendMessage(struct messagemanager_t* manager, struct allocat
 	}
 
 cleanup:
-	__dec(msg);
+	ref_release(msg);
 }
 
-void messagemanager_sendSuccessMessage(struct messagemanager_t* manager, struct allocation_t* msg)
+void messagemanager_sendRequestLocal(struct ref_t* msg)
 {
-	if (!manager || !msg)
+	if (!msg)
 		return;
 
-	struct message_t* message = __get(msg);
+	struct message_header_t* message = ref_getDataAndAcquire(msg);
 	if (!message)
-	{
-		WriteLog(LL_Error, "could not get reference to message");
 		return;
-	}
 
-	int request = message->header.request;
-	message->header.request = false;
+	message->request = true;
 
-	// We forward all replies
-	if (message->socket < 0)
-		goto cleanup;
+	messagemanager_sendMessageInternal(msg);
 
-	// Set success error
-	message->header.error_type = 0;
-
-	// Save the payload length
-	uint16_t payloadLength = message->header.payloadSize;
-
-	// Set set the payload length to 0 because we are not sending a payload
-	message->header.payloadSize = 0;
-
-	// Send response back to the PC
-	kwrite(message->socket, &message->header, sizeof(message->header));
-
-	// Set the payload length back so memory cleanup will happen normally
-	message->header.payloadSize = payloadLength;
-
-cleanup:
-	message->header.request = request;
-	__dec(msg);
+	ref_release(msg);
 }
 
-void messagemanager_sendErrorMessage(struct messagemanager_t* manager, struct allocation_t* msg, int32_t error)
+void messagemanager_sendResponseLocal(struct ref_t* msg, int32_t error)
 {
-	if (!manager || !msg)
+	if (!msg)
 		return;
 
-	struct message_t* message = __get(msg);
+	struct message_header_t* message = ref_getDataAndAcquire(msg);
 	if (!message)
-	{
-		WriteLog(LL_Error, "could not get reference to message");
 		return;
-	}
-	int request = message->header.request;
-	message->header.request = false;
+	
+	message->error_type = error;
+	message->request = false;
 
-	// We forward all replies
-	if (message->socket != -1)
+	messagemanager_sendMessageInternal(msg);
+
+	ref_release(msg);
+}
+
+#include <oni/rpc/rpcserver.h>
+#include <oni/framework.h>
+
+void messagemanager_sendResponse(struct ref_t* msg, int32_t error)
+/*
+	messagemanager_sendResponse
+
+	msg - Reference counted message_header_t
+	error - Error to set this message to
+
+	This function send the message header and then the payload data
+*/
+{
+	if (!msg)
+		return;
+
+	struct message_header_t* message = ref_getDataAndAcquire(msg);
+	if (!message)
+		return;
+
+	message->request = false;
+	message->error_type = error;
+
+	struct rpcserver_t* rpcServer = gFramework->rpcServer;
+
+	int32_t connectionSocket = rpcserver_findSocketFromThread(rpcServer, curthread);
+	WriteLog(LL_Debug, "connection socket found: %d", connectionSocket);
+
+	// Send the response back over the socket
+	if (connectionSocket > 0)
 	{
-		// Set success error
-		message->header.error_type = 0;
-
 		// Save the payload length
-		uint16_t payloadLength = message->header.payloadSize;
-
-		// Set set the payload length to 0 because we are not sending a payload
-		message->header.payloadSize = 0;
-
-		// The error should always be < 0
-		message->header.error_type = error < 0 ? error : -error;
+		uint16_t payloadLength = message->payloadSize;
 
 		// Send response back to the PC
-		kwrite(message->socket, &message->header, sizeof(message->header));
+		ssize_t ret = kwrite(connectionSocket, message, sizeof(*message));
+		if (ret < 0)
+		{
+			WriteLog(LL_Error, "could not write (%p) message header (%d).", message, ret);
+			goto cont;
+		}
 
-		// Set the payload length back so memory cleanup will happen normally
-		message->header.payloadSize = payloadLength;
+		void* payloadData = message_getData(message);
+		// If we have a payload send it back
+		if (payloadLength > 0 && payloadData != NULL)
+		{
+			ret = kwrite(connectionSocket, payloadData, payloadLength);
+			if (ret < 0)
+			{
+				WriteLog(LL_Error, "could not write (%p) payload (%d).", payloadData, ret);
+				goto cont;
+			}
+		}
 	}
 
-	message->header.request = request;
+cont:
+	messagemanager_sendResponseLocal(msg, error);
 
-	__dec(msg);
+	ref_release(msg);
+}
+
+void messagemanager_sendRequest(struct ref_t* msg)
+{
+	// We don't support requesting data from Mira to PC
+	messagemanager_sendRequestLocal(msg);
 }

@@ -768,6 +768,27 @@ int ksetuid(uid_t uid)
 	return td->td_retval[0];
 }
 
+int ksetuid_t(uid_t uid, struct thread* td)
+{
+	int(*sys_setuid)(struct thread *, struct setuid_args *) = kdlsym(sys_setuid);
+
+	int error;
+	struct setuid_args uap;
+
+	// clear errors
+	td->td_retval[0] = 0;
+
+	// call syscall
+	uap.uid = uid;
+
+	error = sys_setuid(td, &uap);
+	if (error)
+		return -error;
+
+	// success
+	return td->td_retval[0];
+}
+
 int kptrace(int req, pid_t pid, caddr_t addr, int data)
 {
 	int(*sys_ptrace)(struct thread *, struct ptrace_args *) = kdlsym(sys_ptrace);
@@ -842,4 +863,51 @@ int ksetsockopt(int socket, int level, int name, caddr_t val, int valsize)
 
 	// success
 	return td->td_retval[0];
+}
+
+int kftruncate(int fd, off_t length)
+{
+	struct sysentvec* sv = kdlsym(self_orbis_sysvec);
+	struct sysent* sysents = sv->sv_table;
+	int(*sys_ftruncate)(struct thread *, struct ftruncate_args *) = (void*)sysents[480].sy_call;
+
+	int error;
+	struct ftruncate_args uap;
+	struct thread *td = curthread;
+
+	// clear errors
+	td->td_retval[0] = 0;
+
+	// call syscall
+	uap.fd = fd;
+	uap.length = length;
+
+	error = sys_ftruncate(td, &uap);
+	if (error)
+		return -error;
+
+	// success
+	return td->td_retval[0];
+}
+
+pid_t krfork_t(int flags, struct thread* td)
+{
+	struct sysentvec* sv = kdlsym(self_orbis_sysvec);
+	struct sysent* sysents = sv->sv_table;
+	int(*sys_rfork)(struct thread *, struct rfork_args *) = (void*)sysents[251].sy_call;
+
+	int error;
+	struct rfork_args uap;
+
+	// clear errors
+	td->td_retval[0] = 0;
+
+	// call syscall
+	uap.flags = flags;
+	error = sys_rfork(td, &uap);
+	if (error)
+		return -error;
+
+	// success
+	return (pid_t)td->td_retval[0];
 }

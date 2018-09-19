@@ -1,6 +1,5 @@
 #include <oni/boot/patches.h>
 #include <oni/utils/kdlsym.h>
-#include <oni/utils/cpu.h>
 
 /*
 	Please, please, please!
@@ -12,12 +11,11 @@ void install_prerunPatches_505()
 	if (!gKernelBase)
 		return;
 
-	
 	// Use "kmem" for all patches
 	uint8_t *kmem;
-	
-	// enable UART
-  	kmem = (uint8_t *)&gKernelBase[0x019ECEB0];
+
+	// Enable UART
+	kmem = (uint8_t *)&gKernelBase[0x019ECEB0];
 	kmem[0] = 0x00;
 
 	// Verbose Panics
@@ -33,6 +31,16 @@ void install_prerunPatches_505()
 
 	// sceSblACMgrIsAllowedSystemLevelDebugging
 	kmem = (uint8_t *)&gKernelBase[0x00010FC0];
+	kmem[0] = 0xB8;
+	kmem[1] = 0x01;
+	kmem[2] = 0x00;
+	kmem[3] = 0x00;
+	kmem[4] = 0x00;
+	kmem[5] = 0xC3;
+	kmem[6] = 0x90;
+	kmem[7] = 0x90;
+
+	kmem = (uint8_t *)&gKernelBase[0x00011730];
 	kmem[0] = 0xB8;
 	kmem[1] = 0x01;
 	kmem[2] = 0x00;
@@ -58,7 +66,7 @@ void install_prerunPatches_505()
 	
 	kmem = (uint8_t *)&gKernelBase[0x000FCD56];
 	kmem[0] = 0x07;
-	
+
 	// Patch copyin/copyout to allow userland + kernel addresses in both params
 	kmem = (uint8_t *)&gKernelBase[0x001EA767];
 	kmem[0] = 0x90;
@@ -121,5 +129,4 @@ void install_prerunPatches_505()
 	kmem[2] = 0xC0;
 	kmem[3] = 0x90;
 	kmem[4] = 0x90;
-
 }

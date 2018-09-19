@@ -71,6 +71,7 @@
     <ClInclude Include="include\oni\plugins\pluginmanager.h" />
     <ClInclude Include="include\oni\rpc\rpcconnection.h" />
     <ClInclude Include="include\oni\rpc\rpcserver.h" />
+    <ClInclude Include="include\oni\trainers\trainer.h" />
     <ClInclude Include="include\oni\utils\cpu.h" />
     <ClInclude Include="include\oni\utils\dynlib.h" />
     <ClInclude Include="include\oni\utils\escape.h" />
@@ -79,6 +80,8 @@
     <ClInclude Include="include\oni\utils\hook.h" />
     <ClInclude Include="include\oni\utils\kdlsym.h" />
     <ClInclude Include="include\oni\utils\kdlsym\default.h" />
+    <ClInclude Include="include\oni\utils\kdlsym\orbis405.h" />
+    <ClInclude Include="include\oni\utils\kdlsym\orbis455.h" />
     <ClInclude Include="include\oni\utils\kdlsym\orbis501.h" />
     <ClInclude Include="include\oni\utils\kdlsym\orbis505.h" />
     <ClInclude Include="include\oni\utils\kernel.h" />
@@ -86,15 +89,17 @@
     <ClInclude Include="include\oni\utils\memory\allocator.h" />
     <ClInclude Include="include\oni\utils\memory\install.h" />
     <ClInclude Include="include\oni\utils\patches.h" />
+    <ClInclude Include="include\oni\utils\ref.h" />
     <ClInclude Include="include\oni\utils\syscall.h" />
     <ClInclude Include="include\oni\utils\sys_wrappers.h" />
     <ClInclude Include="include\oni\utils\types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\oni\boot\patches.c" />
+    <ClCompile Include="src\oni\boot\patches\patches405.c" />
+    <ClCompile Include="src\oni\boot\patches\patches455.c" />
     <ClCompile Include="src\oni\boot\patches\patches501.c" />
     <ClCompile Include="src\oni\boot\patches\patches505.c" />
-    <ClCompile Include="src\oni\messaging\message.c" />
     <ClCompile Include="src\oni\messaging\messagecategory.c" />
     <ClCompile Include="src\oni\messaging\messagemanager.c" />
     <ClCompile Include="src\oni\plugins\pluginmanager.c" />
@@ -109,6 +114,7 @@
     <ClCompile Include="src\oni\utils\log\logger.c" />
     <ClCompile Include="src\oni\utils\memory\allocator.c" />
     <ClCompile Include="src\oni\utils\memory\install.c" />
+    <ClCompile Include="src\oni\utils\ref.c" />
     <ClCompile Include="src\oni\utils\sys_wrappers.c" />
   </ItemGroup>
   <ItemGroup>
