@@ -37,6 +37,22 @@ void kfree(void* address, size_t size)
 	kmem_free(map, address, size);
 }
 
+void* k_malloc(size_t size)
+{
+	void* M_TEMP = kdlsym(M_TEMP);
+	void* (*malloc)(unsigned long size, struct malloc_type *type, int flags) = kdlsym(malloc);
+
+	return malloc(size, M_TEMP, M_WAITOK | M_ZERO);
+}
+
+void k_free(void* address)
+{
+	void (*free)(void *addr, struct malloc_type *type) = kdlsym(free);
+	void* M_TEMP = kdlsym(M_TEMP);
+
+	free(address, M_TEMP);
+}
+
 void* kcalloc(size_t n, size_t size)
 {
 	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
