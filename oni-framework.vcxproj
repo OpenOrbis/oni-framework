@@ -41,7 +41,7 @@
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <AdditionalSourcesToCopyMapping>Makefile;$(AdditionalSourcesToCopyMapping)</AdditionalSourcesToCopyMapping>
     <NMakePreprocessorDefinitions>_KERNEL;ONI_PLATFORM=ONI_PLATFORM_ORBIS_BSD_501;_STANDALONE_DEBUG</NMakePreprocessorDefinitions>
-    <NMakeIncludeSearchPath>$(ProjectDir)include;$(SolutionDir)Firmware\Dependencies\freebsd-headers\include;</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>$(ProjectDir)include;$(ProjectDir)include/nanopb;$(SolutionDir)Firmware\Dependencies\freebsd-headers\include</NMakeIncludeSearchPath>
     <RemoteBuildCommandLine>cd $(RemoteProjectDir);make create;scan-build make ONI_PLATFORM=ONI_PLATFORM_ORBIS_BSD_501</RemoteBuildCommandLine>
     <RemoteReBuildCommandLine>cd $(RemoteProjectDir);make create;scan-build make clean;make  ONI_PLATFORM=ONI_PLATFORM_ORBIS_BSD_501</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>cd $(RemoteProjectDir);make create;scan-build make clean</RemoteCleanCommandLine>
@@ -52,13 +52,14 @@
     <IntDir>$(ProjectDir)obj\$(Platform)\$(Configuration)\</IntDir>
     <AdditionalSourcesToCopyMapping>Makefile;$(AdditionalSourcesToCopyMapping)</AdditionalSourcesToCopyMapping>
     <NMakePreprocessorDefinitions>_KERNEL;ONI_PLATFORM=ONI_PLATFORM_ORBIS_BSD_501;_STANDALONE</NMakePreprocessorDefinitions>
-    <NMakeIncludeSearchPath>$(ProjectDir)include;$(SolutionDir)Firmware\Dependencies\freebsd-headers\include;</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>$(ProjectDir)include;$(ProjectDir)include/nanopb;$(SolutionDir)Firmware\Dependencies\freebsd-headers\include</NMakeIncludeSearchPath>
     <RemoteBuildCommandLine>cd $(RemoteProjectDir);make create;scan-build make ONI_PLATFORM=ONI_PLATFORM_ORBIS_BSD_501</RemoteBuildCommandLine>
     <RemoteReBuildCommandLine>cd $(RemoteProjectDir);make create;scan-build make clean;make  ONI_PLATFORM=ONI_PLATFORM_ORBIS_BSD_501</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>cd $(RemoteProjectDir);make create;scan-build make clean</RemoteCleanCommandLine>
     <RemoteBuildOutputs>OniFramework.a</RemoteBuildOutputs>
   </PropertyGroup>
   <ItemGroup>
+    <ClInclude Include="include\nanopb\mirabuiltin.pb.h" />
     <ClInclude Include="include\oni\boot\patches.h" />
     <ClInclude Include="include\oni\config.h" />
     <ClInclude Include="include\oni\framework.h" />
@@ -69,8 +70,8 @@
     <ClInclude Include="include\oni\messaging\messagemanager.h" />
     <ClInclude Include="include\oni\plugins\plugin.h" />
     <ClInclude Include="include\oni\plugins\pluginmanager.h" />
-    <ClInclude Include="include\oni\rpc\rpcconnection.h" />
-    <ClInclude Include="include\oni\rpc\rpcserver.h" />
+    <ClInclude Include="include\oni\rpc\pbconnection.h" />
+    <ClInclude Include="include\oni\rpc\pbserver.h" />
     <ClInclude Include="include\oni\trainers\trainer.h" />
     <ClInclude Include="include\oni\utils\cpu.h" />
     <ClInclude Include="include\oni\utils\dynlib.h" />
@@ -93,8 +94,17 @@
     <ClInclude Include="include\oni\utils\syscall.h" />
     <ClInclude Include="include\oni\utils\sys_wrappers.h" />
     <ClInclude Include="include\oni\utils\types.h" />
+    <ClInclude Include="include\nanopb\pb.h" />
+    <ClInclude Include="include\nanopb\pb_common.h" />
+    <ClInclude Include="include\nanopb\pb_decode.h" />
+    <ClInclude Include="include\nanopb\pb_encode.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\nanopb\mirabuiltin.pb.c" />
+    <ClCompile Include="src\nanopb\pb.c" />
+    <ClCompile Include="src\nanopb\pb_common.c" />
+    <ClCompile Include="src\nanopb\pb_decode.c" />
+    <ClCompile Include="src\nanopb\pb_encode.c" />
     <ClCompile Include="src\oni\boot\patches.c" />
     <ClCompile Include="src\oni\boot\patches\patches405.c" />
     <ClCompile Include="src\oni\boot\patches\patches455.c" />
@@ -103,8 +113,8 @@
     <ClCompile Include="src\oni\messaging\messagecategory.c" />
     <ClCompile Include="src\oni\messaging\messagemanager.c" />
     <ClCompile Include="src\oni\plugins\pluginmanager.c" />
-    <ClCompile Include="src\oni\rpc\rpcconnection.c" />
-    <ClCompile Include="src\oni\rpc\rpcserver.c" />
+    <ClCompile Include="src\oni\rpc\pbconnection.c" />
+    <ClCompile Include="src\oni\rpc\pbserver.c" />
     <ClCompile Include="src\oni\utils\dynlib.c" />
     <ClCompile Include="src\oni\utils\escape.c" />
     <ClCompile Include="src\oni\utils\hde\hde64.c" />
