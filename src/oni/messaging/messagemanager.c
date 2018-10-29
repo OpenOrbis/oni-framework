@@ -10,9 +10,7 @@
 #include <oni/framework.h>
 #include <oni/rpc/pbserver.h>
 
-#include <nanopb/mirabuiltin.pb.h>
-#include <nanopb/pb_common.h>
-#include <nanopb/pb_decode.h>
+#include <protobuf-c/mirabuiltin.pb-c.h>
 
 void messagemanager_init(struct messagemanager_t* manager)
 {
@@ -79,7 +77,7 @@ struct messagecategory_t* messagemanager_getCategory(struct messagemanager_t* ma
 	if (!manager)
 		return NULL;
 
-	if (category >= MessageCategory_MAX)
+	if (category >= MESSAGE_CATEGORY__MAX)
 		return NULL;
 
 	struct messagecategory_t* rpccategory = 0;
@@ -110,7 +108,7 @@ int32_t messagemanager_registerCallback(struct messagemanager_t* manager, uint32
 		return 0;
 
 	// Verify the listener category
-	if (callbackCategory >= MessageCategory_MAX)
+	if (callbackCategory >= MESSAGE_CATEGORY__MAX)
 		return 0;
 
 	struct messagecategory_t* category = messagemanager_getCategory(manager, callbackCategory);
@@ -160,7 +158,7 @@ int32_t messagemanager_unregisterCallback(struct messagemanager_t* manager, int3
 		return false;
 
 	// Verify the listener category
-	if (callbackCategory >= MessageCategory_MAX)
+	if (callbackCategory >= MESSAGE_CATEGORY__MAX)
 		return false;
 
 	struct messagecategory_t* category = messagemanager_getCategory(manager, callbackCategory);
@@ -263,6 +261,7 @@ void messagemanager_sendRequest(struct ref_t* msg)
 		return;
 
 	struct messagemanager_t* manager = gFramework->messageManager;
+	MessageHeader* header = NULL;
 
 	uint8_t* messageData = ref_getDataAndAcquire(msg);
 	if (!messageData)
@@ -273,22 +272,22 @@ void messagemanager_sendRequest(struct ref_t* msg)
 		goto cleanup;
 
 	// Decode the message header
-	MessageHeader header;
-	pb_istream_t stream = pb_istream_from_buffer(messageData, messageDataSize);
-	if (!pb_decode(&stream, MessageHeader_fields, &header))
+	header = message_header__unpack(NULL, messageDataSize, messageData);
+	if (!header)
 	{
-		WriteLog(LL_Error, "could not decode header (%s).", PB_GET_ERROR(&stream));
+		WriteLog(LL_Error, "could not decode header.");
 		goto cleanup;
 	}
 
 	// Validate our message category
-	if (header.category >= MessageCategory_MAX)
+	MessageCategory headerCategory = header->category;
+	if (headerCategory >= MESSAGE_CATEGORY__MAX)
 	{
-		WriteLog(LL_Error, "[-] invalid message category: %d max: %d", header.category, MessageCategory_MAX);
+		WriteLog(LL_Error, "[-] invalid message category: %d max: %d", headerCategory, MESSAGE_CATEGORY__MAX);
 		goto cleanup;
 	}
 
-	struct messagecategory_t* category = messagemanager_getCategory(manager, header.category);
+	struct messagecategory_t* category = messagemanager_getCategory(manager, headerCategory);
 	if (!category)
 	{
 		WriteLog(LL_Debug, "[-] could not get dispatcher category");
@@ -306,7 +305,7 @@ void messagemanager_sendRequest(struct ref_t* msg)
 			continue;
 
 		// Check the type of the message
-		if (l_Callback->type != header.type)
+		if (l_Callback->type != header->type)
 			continue;
 
 		// Call the callback with the provided message
@@ -315,5 +314,11 @@ void messagemanager_sendRequest(struct ref_t* msg)
 	}
 
 cleanup:
+	if (header)
+	{
+		message_header__free_unpacked(header, NULL);
+		header = NULL;
+	}
+		
 	ref_release(msg);
 }

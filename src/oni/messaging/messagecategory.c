@@ -6,7 +6,7 @@
 #include <oni/utils/memory/allocator.h>
 #include <oni/utils/ref.h>
 
-#include <nanopb/mirabuiltin.pb.h>
+#include <protobuf-c/mirabuiltin.pb-c.h>
 
 void rpccategory_init(struct messagecategory_t* dispatcherCategory, uint8_t category)
 {
@@ -15,7 +15,7 @@ void rpccategory_init(struct messagecategory_t* dispatcherCategory, uint8_t cate
 	if (!dispatcherCategory)
 		return;
 
-	if (category >= MessageCategory_MAX)
+	if (category >= MESSAGE_CATEGORY__MAX)
 		return;
 
 	dispatcherCategory->category = category;
@@ -36,34 +36,3 @@ int32_t rpccategory_findFreeCallbackIndex(struct messagecategory_t* category)
 
 	return -1;
 }
-
-//void rpccategory_sendMessage(struct messagecategory_t* category, struct ref_t* msg)
-//{
-//	if (!category || !msg)
-//		return;
-//
-//	struct message_header_t* message = ref_getDataAndAcquire(msg);
-//	if (!message)
-//		return;
-//
-//	if (message->category != category->category)
-//		goto cleanup;
-//
-//	for (uint32_t i = 0; i < RPCCATEGORY_MAX_CALLBACKS; ++i)
-//	{
-//		struct messagecategory_callback_t* callback = category->callbacks[i];
-//		if (!callback)
-//			continue;
-//
-//		if (callback->type != message->error_type)
-//			continue;
-//
-//		if (!callback->callback)
-//			continue;
-//
-//		callback->callback(msg);
-//	}
-//
-//cleanup:
-//	ref_release (msg);
-//}

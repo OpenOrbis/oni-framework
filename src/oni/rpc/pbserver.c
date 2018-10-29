@@ -5,10 +5,6 @@
 #include <oni/utils/kdlsym.h>
 #include <oni/utils/memory/allocator.h>
 
-#include <nanopb/pb.h>
-#include <nanopb/pb_encode.h>
-#include <nanopb/pb_decode.h>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -23,8 +19,6 @@ void pbserver_init(struct pbserver_t* server)
 	void(*mtx_init)(struct mtx *m, const char *name, const char *type, int opts) = kdlsym(mtx_init);
 
 	// Assigns all of the functions that we should need
-	init_nanopb();
-
 	if (!server)
 		return;
 
@@ -39,6 +33,8 @@ uint8_t pbserver_startup(struct pbserver_t* server, uint16_t port)
 {
 	int(*kthread_add)(void(*func)(void*), void* arg, struct proc* procptr, struct thread** tdptr, int flags, int pages, const char* fmt, ...) = kdlsym(kthread_add);
 
+	WriteLog(LL_Warn, "here");
+
 	// Create a new socket
 	server->socket = ksocket(AF_INET, SOCK_STREAM, 0);
 	if (server->socket < 0)
@@ -47,10 +43,17 @@ uint8_t pbserver_startup(struct pbserver_t* server, uint16_t port)
 		return false;
 	}
 
+	WriteLog(LL_Warn, "here");
+
+
 	// Set the server address information
+	memset(&server->address, 0, sizeof(server->address));
 	server->address.sin_family = AF_INET;
-	server->address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	server->address.sin_addr.s_addr = htonl(INADDR_ANY);
 	server->address.sin_port = htons(9999); // TODO: Make configurable
+	server->address.sin_len = sizeof(server->address);
+
+	WriteLog(LL_Warn, "here");
 
 	// Bind to the port
 	int32_t ret = kbind(server->socket, (struct sockaddr*)&server->address, sizeof(server->address));
@@ -61,6 +64,8 @@ uint8_t pbserver_startup(struct pbserver_t* server, uint16_t port)
 		server->socket = -1;
 		return false;
 	}
+
+	WriteLog(LL_Warn, "here");
 
 	ret = klisten(server->socket, ARRAYSIZE(server->connections));
 	if (ret < 0)
@@ -84,10 +89,17 @@ uint8_t pbserver_shutdown(struct pbserver_t* server)
 	if (!server)
 		return false;
 
+	WriteLog(LL_Warn, "here");
+
+
 	if (server->socket == -1)
 		return false;
 
+	WriteLog(LL_Warn, "here");
+
 	server->running = false;
+
+	WriteLog(LL_Warn, "here");
 
 	// Iterate through each of the connections and force connections to error and get cleaned up
 	for (uint32_t i = 0; i < ARRAYSIZE(server->connections); ++i)
@@ -104,6 +116,8 @@ uint8_t pbserver_shutdown(struct pbserver_t* server)
 		connection->socket = -1;
 	}
 
+	WriteLog(LL_Warn, "here");
+
 	// Shut down the actual server socket
 	if (server->socket >= 0)
 	{
@@ -115,42 +129,13 @@ uint8_t pbserver_shutdown(struct pbserver_t* server)
 	return true;
 }
 
-static bool write_callback(pb_ostream_t *stream, const uint8_t *buf, size_t count)
-{
-	int fd = (intptr_t)stream->state;
-	return ksend(fd, (caddr_t)buf, count, 0) == count;
-}
-
-static bool read_callback(pb_istream_t *stream, uint8_t *buf, size_t count)
-{
-	int fd = (intptr_t)stream->state;
-	int result;
-
-	result = krecv(fd, buf, count, MSG_WAITALL);
-
-	if (result == 0)
-		stream->bytes_left = 0; /* EOF */
-
-	return result == count;
-}
-
-pb_ostream_t pb_ostream_from_socket(int fd)
-{
-	pb_ostream_t stream = { &write_callback, (void*)(intptr_t)fd, SIZE_MAX, 0 };
-	return stream;
-}
-
-pb_istream_t pb_istream_from_socket(int fd)
-{
-	pb_istream_t stream = { &read_callback, (void*)(intptr_t)fd, SIZE_MAX };
-	return stream;
-}
-
 void pbserver_serverThread(void* userData)
 {
 	void(*kthread_exit)(void) = kdlsym(kthread_exit);
 	void(*_mtx_lock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_lock_flags);
 	void(*_mtx_unlock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_unlock_flags);
+
+	WriteLog(LL_Warn, "here");
 
 	// Verify that we have a server object
 	if (!userData)
@@ -160,23 +145,41 @@ void pbserver_serverThread(void* userData)
 	}
 	struct pbserver_t* server = (struct pbserver_t*)userData;
 
+	WriteLog(LL_Warn, "here");
+
 	// Update our running state
 	server->running = true;
+
+	WriteLog(LL_Warn, "here");
 
 	// While the server is still running
 	while (server->running)
 	{
+		WriteLog(LL_Warn, "here");
+
 		struct pbconnection_t* connection = k_malloc(sizeof(struct pbconnection_t));
 		if (!connection)
 			goto exit;
 
+		WriteLog(LL_Warn, "here");
+
 		// Initialize our structures
 		pbconnection_init(connection);
+
+		WriteLog(LL_Warn, "here");
 
 		// Wait for a client
 		size_t addressSize = sizeof(connection->address);
 
+		WriteLog(LL_Warn, "here");
+
+		connection->address.sin_len = sizeof(connection->address);
+
+		WriteLog(LL_Warn, "here");
+
 		connection->socket = kaccept(server->socket, (struct sockaddr*)&connection->address, &addressSize);
+
+		WriteLog(LL_Warn, "here");
 
 		// Check for any errors
 		if (connection->socket < 0)
@@ -192,6 +195,8 @@ void pbserver_serverThread(void* userData)
 		// Nothing below this should jump out in error
 		_mtx_lock_flags(&server->connectionsLock, 0, "", 0);
 
+		WriteLog(LL_Warn, "here");
+
 		// Handle error case
 		int32_t connectionIndex = pbserver_findFreeConnectionIndex(server);
 		if (connectionIndex < 0)
@@ -202,8 +207,12 @@ void pbserver_serverThread(void* userData)
 		}
 		else
 		{
+			WriteLog(LL_Warn, "here");
+
 			// Set our connection in our server
 			server->connections[connectionIndex] = connection;
+
+			WriteLog(LL_Warn, "here");
 
 			// Fire off a new connection thread
 			pbserver_handleConnection(server, connection);
@@ -215,6 +224,8 @@ void pbserver_serverThread(void* userData)
 	}
 
 exit:
+	WriteLog(LL_Warn, "here");
+
 	server->running = false;
 
 	WriteLog(LL_Debug, "pbserver is shutting down.");
@@ -227,24 +238,32 @@ void pbserver_handleConnection(struct pbserver_t* server, struct pbconnection_t*
 	void(*_mtx_lock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_lock_flags);
 	void(*_mtx_unlock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_unlock_flags);
 
+	WriteLog(LL_Warn, "here");
+
 	if (!connection || !server)
 		return;
 
+	WriteLog(LL_Warn, "here");
+
 	if (connection->socket < 0)
 		return;
+
+	WriteLog(LL_Warn, "here");
 
 	struct proc* miraProc = gInitParams->process;
 	if (!miraProc)
 		return;
 
+	WriteLog(LL_Warn, "here");
+
 	// Lock the connection thread
-	_mtx_lock_flags(&connection->lock, 0, "", 0);
+	_mtx_lock_flags(&connection->lock, 0, __FILE__, __LINE__);
 
 	int32_t result = kthread_add((void(*)(void*))pbconnection_thread, (void*)connection, miraProc, &connection->thread, 0, 0, "pbconn");
 
 	WriteLog(LL_Debug, "pbconn thread creation: (%d).", result);
 
-	_mtx_unlock_flags(&connection->lock, 0, "", 0);
+	_mtx_unlock_flags(&connection->lock, 0, __FILE__, __LINE__);
 
 	if (result < 0)
 	{

@@ -4,33 +4,21 @@
 
 #include <oni/utils/kdlsym.h>
 #include <oni/utils/sys_wrappers.h>
+#include <oni/utils/logger.h>
 
 #include <sys/malloc.h>
 
+
 void* kmalloc(size_t size)
 {
-	/*void* M_TEMP = kdlsym(M_TEMP);
-	void* (*malloc)(unsigned long size, struct malloc_type *type, int flags) = kdlsym(malloc);
-
-	return malloc(size, M_TEMP, M_WAITOK | M_ZERO);*/
-
 	vm_map_t map = (vm_map_t)(*(uint64_t *)(kdlsym(kernel_map)));
 	vm_offset_t(*kmem_alloc)(vm_map_t map, vm_size_t size) = kdlsym(kmem_alloc);
 
-	void* data = (void*)kmem_alloc(map, size);
-	//if (data)
-	//	kmlock(data, size);
-
-	return data;
+	return (void*)kmem_alloc(map, size);
 }
 
 void kfree(void* address, size_t size)
 {
-	/*void (*free)(void *addr, struct malloc_type *type) = kdlsym(free);
-	void* M_TEMP = kdlsym(M_TEMP);
-
-	free(address, M_TEMP);*/
-
 	vm_map_t map = (vm_map_t)(*(uint64_t *)(kdlsym(kernel_map)));
 	void(*kmem_free)(void* map, void* addr, size_t size) = kdlsym(kmem_free);
 
@@ -39,18 +27,39 @@ void kfree(void* address, size_t size)
 
 void* k_malloc(size_t size)
 {
-	void* M_TEMP = kdlsym(M_TEMP);
-	void* (*malloc)(unsigned long size, struct malloc_type *type, int flags) = kdlsym(malloc);
+	if (!size)
+		size = sizeof(uint64_t);
 
-	return malloc(size, M_TEMP, M_WAITOK | M_ZERO);
+	WriteLog(LL_Debug, "k_alloc size (%llx)", size);
+
+	uint8_t* data = kmalloc(size + sizeof(uint64_t));
+	if (!data)
+		return NULL;
+
+	// Set our pointer header
+	(*(uint64_t*)data) = size;
+
+	// Return the start of the requested data
+	return data + sizeof(uint64_t);
 }
 
 void k_free(void* address)
 {
-	void (*free)(void *addr, struct malloc_type *type) = kdlsym(free);
+	WriteLog(LL_Debug, "k_free %p", address);
+
+	if (!address)
+		return;
+
+	uint8_t* data = ((uint8_t*)address) - sizeof(uint64_t);
+
+	uint64_t size = *(uint64_t*)data;
+
+	kfree(data, size);
+
+	/*void (*free)(void *addr, struct malloc_type *type) = kdlsym(free);
 	void* M_TEMP = kdlsym(M_TEMP);
 
-	free(address, M_TEMP);
+	free(address, M_TEMP);*/
 }
 
 void* kcalloc(size_t n, size_t size)
