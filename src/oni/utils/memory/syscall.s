@@ -1,7 +1,7 @@
 .intel_syntax noprefix
 .text
 
-.global syscall1, syscall2, syscall3, syscall4, syscall5
+.global syscall1, syscall2, syscall3, syscall4, syscall5, _mmap
 
 syscall:
     mov rax,rdi
@@ -47,3 +47,8 @@ syscall5:
     mov r8,r9
     syscall
     ret
+
+_mmap:
+	mov rax, 477
+	syscall
+	ret
