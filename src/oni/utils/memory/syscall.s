@@ -50,5 +50,11 @@ syscall5:
 
 _mmap:
 	mov rax, 477
+	mov rdi, 0
+	mov rsi, 16384
+	mov rdx, 7 # PROT_READ | PROT_WRITE | PROT_EXEC
+	mov r10, 4096 # MAP_ANON
+	mov r8, -1
+	mov r9, 0
 	syscall
 	ret
