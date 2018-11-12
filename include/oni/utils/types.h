@@ -16,3 +16,5 @@
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(a) (sizeof(a) / sizeof(*(a)))
 #endif
+
+typedef uint32_t u_int32_t;

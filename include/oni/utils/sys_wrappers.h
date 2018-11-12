@@ -25,6 +25,7 @@ extern int kopen_t(char* path, int flags, int mode, struct thread* td);
 extern ssize_t kwrite(int d, const void* buf, size_t nbytes);
 extern int kgetdents(int fd, char* buf, int nbytes);
 extern ssize_t kread(int fd, void* buf, size_t count);
+extern int ksend(int socket, caddr_t buf, size_t len, int flags);
 extern int kfstat(int fd, struct stat* sb);
 extern int kstat(char* path, struct stat* buf);
 extern int kstat_t(char* path, struct stat* buf, struct thread* td);

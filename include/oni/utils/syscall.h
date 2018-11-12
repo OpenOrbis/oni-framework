@@ -35,3 +35,7 @@ void* syscall5(
 	void* arg4,
 	void* arg5
 );
+
+//caddr_t _mmap(caddr_t addr, size_t len, int prot, int flags, int fd, off_t pos);
+caddr_t _mmap(void);
+caddr_t _Allocate5MB(void);
