@@ -28,7 +28,7 @@ struct kexec_uap
 	void* arg0;
 };
 
-void SelfElevateAndRunStage2(struct thread* td, struct kexec_uap* uap);
+void SelfElevateAndRunPayloadStage2(struct thread* td, struct kexec_uap* uap);
 
 uint8_t SelfElevateAndRun(struct initparams_t* userInitParams)
 {
@@ -36,13 +36,15 @@ uint8_t SelfElevateAndRun(struct initparams_t* userInitParams)
 	if (!userInitParams)
 		return false;
 
-	// kernel execute
-	syscall2(11, SelfElevateAndRunStage2, userInitParams);
+	if (userInitParams->isElf)
+		return false;
+	else
+		syscall2(11, SelfElevateAndRunPayloadStage2, userInitParams);
 
 	return true;
 }
 
-void SelfElevateAndRunStage2(struct thread* td, struct kexec_uap* uap)
+void SelfElevateAndRunPayloadStage2(struct thread* td, struct kexec_uap* uap)
 {
 	// If we do not have a valid parameter passed, kick back
 	if (!uap->arg0)
