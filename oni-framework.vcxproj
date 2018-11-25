@@ -122,7 +122,6 @@
     <ClCompile Include="src\protobuf-c\protobuf-c.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="link.x" />
     <None Include="Makefile" />
     <None Include="README.md" />
     <None Include="src\oni\utils\memory\syscall.s" />
