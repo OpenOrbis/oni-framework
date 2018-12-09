@@ -51,22 +51,22 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_kern_sysents                           0x01034790 //ok
 #define kdlsym_addr_kern_thr_create						             0x002EEED0 //new
 #define kdlsym_addr_kernel_map                             0x01B39218 //ok
-#define kdlsym_addr_kmem_alloc                             0x0016DF30
-#define kdlsym_addr_kmem_free                              0x0016E100
-#define kdlsym_addr_kproc_create                           0x00465590
-#define kdlsym_addr_kthread_add                            0x00465B20
-#define kdlsym_addr_kthread_exit                           0x00465DF0
-#define kdlsym_addr_M_MOUNT                                0x014572A0
-#define kdlsym_addr_M_TEMP                                 0x0199BB80
-#define kdlsym_addr_malloc                                 0x003F85C0
-#define kdlsym_addr_memcmp                                 0x00244EE0
-#define kdlsym_addr_memcpy                                 0x00149D40
-#define kdlsym_addr_memset                                 0x00304DD0
-#define kdlsym_addr_mini_syscore_self_binary               0x01471468
-#define kdlsym_addr_mtx_init                               0x003102C0
-#define kdlsym_addr_mtx_lock_sleep                         0x0030F910
-#define kdlsym_addr_mtx_unlock_sleep                       0x0030FC10
-#define kdlsym_addr_pfind                                  0x00078DC0
+#define kdlsym_addr_kmem_alloc                             0x0016DF30 //ok
+#define kdlsym_addr_kmem_free                              0x0016E100 //ok
+#define kdlsym_addr_kproc_create                           0x00465590 //ok
+#define kdlsym_addr_kthread_add                            0x00465B20 //ok
+#define kdlsym_addr_kthread_exit                           0x00465DF0 //ok
+#define kdlsym_addr_M_MOUNT                                0x014572A0 //ok
+#define kdlsym_addr_M_TEMP                                 0x0199BB80 //ok
+#define kdlsym_addr_malloc                                 0x003F85C0 //ok
+#define kdlsym_addr_memcmp                                 0x00244EE0 //ok
+#define kdlsym_addr_memcpy                                 0x00149D40 //ok
+#define kdlsym_addr_memset                                 0x00304DD0 //ok
+#define kdlsym_addr_mini_syscore_self_binary               0x01479558 //fixed
+#define kdlsym_addr_mtx_init                               0x003102C0 //ok
+#define kdlsym_addr_mtx_lock_sleep                         0x0030F910 //ok
+#define kdlsym_addr_mtx_unlock_sleep                       0x0030FC10 //ok
+#define kdlsym_addr_pfind                                  0x00078DC0 //ok
 #define kdlsym_addr_pmap_activate                          0x004283A0
 #define kdlsym_addr_printf                                 0x00017F30
 #define kdlsym_addr_prison0                                0x01042AB0
