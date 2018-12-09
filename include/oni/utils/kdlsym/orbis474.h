@@ -67,18 +67,18 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_mtx_lock_sleep                         0x0030F910 //ok
 #define kdlsym_addr_mtx_unlock_sleep                       0x0030FC10 //ok
 #define kdlsym_addr_pfind                                  0x00078DC0 //ok
-#define kdlsym_addr_pmap_activate                          0x004283A0
-#define kdlsym_addr_printf                                 0x00017F30
-#define kdlsym_addr_prison0                                0x01042AB0
-#define kdlsym_addr_proc0                                  0x01B37C00
-#define kdlsym_addr_proc_reparent                          0x0015BA50
-#define kdlsym_addr_proc_rwmem                             0x0017BDD0
-#define kdlsym_addr_realloc                                0x003F88D0
-#define kdlsym_addr_rootvnode                              0x021B89E0
-#define kdlsym_addr_RsaesPkcs1v15Dec2048CRT                0x003F0070
-#define kdlsym_addr_sbl_eap_internal_partition_key         0x0259CCD0
-#define kdlsym_addr_sbl_pfs_sx                             0x02529310
-#define kdlsym_addr_sceSblAuthMgrIsLoadable2               0x00629040
+#define kdlsym_addr_pmap_activate                          0x004283A0 //ok
+#define kdlsym_addr_printf                                 0x00017F30 //ok
+#define kdlsym_addr_prison0                                0x01042AB0 //ok
+#define kdlsym_addr_proc0                                  0x01B37C00 //ok
+#define kdlsym_addr_proc_reparent                          0x0015BA50 //ok
+#define kdlsym_addr_proc_rwmem                             0x0017BDD0 //ok
+#define kdlsym_addr_realloc                                0x003F88D0 //ok
+#define kdlsym_addr_rootvnode                              0x021B89E0 //ok
+#define kdlsym_addr_RsaesPkcs1v15Dec2048CRT                0x003F0070 //ok
+#define kdlsym_addr_sbl_eap_internal_partition_key         0x0259CCD0 //ok
+#define kdlsym_addr_sbl_pfs_sx                             0x02529310 //ok
+#define kdlsym_addr_sceSblAuthMgrIsLoadable2               0x00629040 //ok
 #define kdlsym_addr_sceSblAuthMgrSmStart                   0x00625410
 #define kdlsym_addr_sceSblAuthMgrSmVerifyHeader            0x00626640
 #define kdlsym_addr_sceSblAuthMgrVerifyHeader              0x006290A0
