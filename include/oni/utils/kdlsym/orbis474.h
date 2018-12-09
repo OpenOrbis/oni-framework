@@ -49,6 +49,7 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_kern_readv                             0x0005E310 //ok
 #define kdlsym_addr_kern_reboot                            0x00098EE0 //ok
 #define kdlsym_addr_kern_sysents                           0x01034790 //ok
+#define kdlsym_addr_kern_thr_create						             0x002EEED0 //new
 #define kdlsym_addr_kernel_map                             0x01B39218 //ok
 #define kdlsym_addr_kmem_alloc                             0x0016DF30
 #define kdlsym_addr_kmem_free                              0x0016E100
