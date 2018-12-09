@@ -1,7 +1,7 @@
 #pragma once
 #include <oni/config.h>
 
-// Offsets initially ported by SocraticBliss, redone by kozarovv
+// Offsets initially ported by SocraticBliss, and zecoxao, redone by kozarovv
 
 #if ONI_PLATFORM==ONI_PLATFORM_ORBIS_BSD_474
 /*
