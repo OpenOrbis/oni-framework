@@ -12,19 +12,19 @@ The reason we do not hardcode offsets here, is due to the different platforms th
 for the platforms that do enable kernel ASLR (Address Space Layout Randomization?)
 */
 
-#define kdlsym_addr__mtx_lock_flags                        0x0030F8A0
-#define kdlsym_addr__mtx_lock_sleep                        0x0030F910
-#define kdlsym_addr__mtx_unlock_flags                      0x0030FB40
-#define kdlsym_addr__mtx_unlock_sleep                      0x0030FC10
-#define kdlsym_addr__sceSblAuthMgrGetSelfInfo              0x00629880
-#define kdlsym_addr__sx_slock                              0x003907A0
-#define kdlsym_addr__sx_sunlock                            0x00390920
-#define kdlsym_addr__sx_xlock                              0x00390850
-#define kdlsym_addr__sx_xunlock                            0x003909E0
-#define kdlsym_addr__vm_map_lock_read                      0x00392ED0
-#define kdlsym_addr__vm_map_unlock_read                    0x00392F20
-#define kdlsym_addr_AesCbcCfb128Decrypt                    0x00179950
-#define kdlsym_addr_AesCbcCfb128Encrypt                    0x00179720
+#define kdlsym_addr__mtx_lock_flags                        0x0030F8A0 //ok
+#define kdlsym_addr__mtx_lock_sleep                        0x0030F910 //ok
+#define kdlsym_addr__mtx_unlock_flags                      0x0030FB40 //ok
+#define kdlsym_addr__mtx_unlock_sleep                      0x0030FC10 //ok
+#define kdlsym_addr__sceSblAuthMgrGetSelfInfo              0x00629880 //ok
+#define kdlsym_addr__sx_slock                              0x003907A0 //ok
+#define kdlsym_addr__sx_sunlock                            0x00390920 //ok
+#define kdlsym_addr__sx_xlock                              0x00390850 //ok
+#define kdlsym_addr__sx_xunlock                            0x003909E0 //ok
+#define kdlsym_addr__vm_map_lock_read                      0x00392ED0 //ok
+#define kdlsym_addr__vm_map_unlock_read                    0x00392F20 //ok
+#define kdlsym_addr_AesCbcCfb128Decrypt                    0x00179950 //ok
+#define kdlsym_addr_AesCbcCfb128Encrypt                    0x00179720 //ok
 #define kdlsym_addr_allproc                                0x01ADF718
 #define kdlsym_addr_allproc_lock                           0x01ADF6B8
 #define kdlsym_addr_copyin                                 0x00149F20
