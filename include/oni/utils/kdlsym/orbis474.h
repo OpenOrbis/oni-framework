@@ -98,24 +98,24 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_strdup                                 0x004538A0 //ok
 #define kdlsym_addr_strlen                                 0x00353720 //ok
 #define kdlsym_addr_strstr                                 0x00263B90 //ok
-#define kdlsym_addr_sys_accept                             0x003ECD30
-#define kdlsym_addr_sys_bind                               0x003EC3C0
-#define kdlsym_addr_sys_close                              0x0042BA70
-#define kdlsym_addr_sys_dup2                               0x00429CC0
-#define kdlsym_addr_sys_fstat                              0x0042C020
-#define kdlsym_addr_sys_getdents                           0x00446470
-#define kdlsym_addr_sys_kill                               0x000232A0
-#define kdlsym_addr_sys_listen                             0x003EC5D0
-#define kdlsym_addr_sys_lseek                              0x00442B90
-#define kdlsym_addr_sys_mkdir                              0x00445C50
-#define kdlsym_addr_sys_mlock                              0x001420D0
-#define kdlsym_addr_sys_mlockall                           0x00142180
-#define kdlsym_addr_sys_mmap                               0x00141080
-#define kdlsym_addr_sys_munmap                             0x00141820
-#define kdlsym_addr_sys_nmount                             0x000D91A0
-#define kdlsym_addr_sys_open                               0x00440B50
-#define kdlsym_addr_sys_ptrace                             0x0017C260
-#define kdlsym_addr_sys_read                               0x0005E230
+#define kdlsym_addr_sys_accept                             0x003ECD30 //ok
+#define kdlsym_addr_sys_bind                               0x003EC3C0 //ok
+#define kdlsym_addr_sys_close                              0x0042BA70 //ok
+#define kdlsym_addr_sys_dup2                               0x00429CC0 //ok
+#define kdlsym_addr_sys_fstat                              0x0042C020 //ok
+#define kdlsym_addr_sys_getdents                           0x00446470 //ok
+#define kdlsym_addr_sys_kill                               0x000232A0 //ok
+#define kdlsym_addr_sys_listen                             0x003EC5D0 //ok
+#define kdlsym_addr_sys_lseek                              0x00442B90 //ok
+#define kdlsym_addr_sys_mkdir                              0x00445C50 //ok
+#define kdlsym_addr_sys_mlock                              0x001420D0 //ok
+#define kdlsym_addr_sys_mlockall                           0x00142180 //ok
+#define kdlsym_addr_sys_mmap                               0x00141080 //ok
+#define kdlsym_addr_sys_munmap                             0x00141820 //ok
+#define kdlsym_addr_sys_nmount                             0x000D91A0 //ok
+#define kdlsym_addr_sys_open                               0x00440B50 //ok
+#define kdlsym_addr_sys_ptrace                             0x0017C260 //ok
+#define kdlsym_addr_sys_read                               0x0005E230 // req. confirmation
 #define kdlsym_addr_sys_recvfrom                           0x003EDEF0
 #define kdlsym_addr_sys_rmdir                              0x00445FD0
 #define kdlsym_addr_sys_sendto                             0x003ED830
