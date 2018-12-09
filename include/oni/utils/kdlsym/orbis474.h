@@ -61,6 +61,7 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_malloc                                 0x003F85C0 //ok
 #define kdlsym_addr_memcmp                                 0x00244EE0 //ok
 #define kdlsym_addr_memcpy                                 0x00149D40 //ok
+#define kdlsym_addr_memmove						              		   0x002F0940 //new
 #define kdlsym_addr_memset                                 0x00304DD0 //ok
 #define kdlsym_addr_mini_syscore_self_binary               0x01479558 //fixed
 #define kdlsym_addr_mtx_init                               0x003102C0 //ok
@@ -87,16 +88,16 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_sceSblKeymgrClearKey                   0x00610D80 //ok
 #define kdlsym_addr_sceSblKeymgrSetKeyForPfs               0x006109E0 //ok
 #define kdlsym_addr_sceSblKeymgrSmCallfunc                 0x00611530 //ok
-#define kdlsym_addr_sceSblPfsSetKeys                       0x006095E0
-#define kdlsym_addr_sceSblServiceMailbox                   0x00617AB0
-#define kdlsym_addr_self_orbis_sysvec                      0x01468700
-#define kdlsym_addr_Sha256Hmac                             0x002D7E00
-#define kdlsym_addr_snprintf                               0x00018230
-#define kdlsym_addr_sscanf                                 0x00304300
-#define kdlsym_addr_strcmp                                 0x001DD150
-#define kdlsym_addr_strdup                                 0x004538A0
-#define kdlsym_addr_strlen                                 0x00353720
-#define kdlsym_addr_strstr                                 0x00263B90
+#define kdlsym_addr_sceSblPfsSetKeys                       0x006095E0 //ok
+#define kdlsym_addr_sceSblServiceMailbox                   0x00617AB0 //ok
+#define kdlsym_addr_self_orbis_sysvec                      0x01468700 //ok
+#define kdlsym_addr_Sha256Hmac                             0x002D7E00 //ok
+#define kdlsym_addr_snprintf                               0x00018230 //ok
+#define kdlsym_addr_sscanf                                 0x00304300 //ok
+#define kdlsym_addr_strcmp                                 0x001DD150 //ok
+#define kdlsym_addr_strdup                                 0x004538A0 //ok
+#define kdlsym_addr_strlen                                 0x00353720 //ok
+#define kdlsym_addr_strstr                                 0x00263B90 //ok
 #define kdlsym_addr_sys_accept                             0x003ECD30
 #define kdlsym_addr_sys_bind                               0x003EC3C0
 #define kdlsym_addr_sys_close                              0x0042BA70
