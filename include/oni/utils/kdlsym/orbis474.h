@@ -42,14 +42,14 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_free                                   0x003F87A0 //ok
 #define kdlsym_addr_gpu_va_page_list                       0x02525DD0 //ok
 #define kdlsym_addr_icc_nvs_read                           0x0001B850 //ok
-#define kdlsym_addr_kern_close                             0x0042BA80
-#define kdlsym_addr_kern_mkdirat                           0x00444250
-#define kdlsym_addr_kern_open                              0x00440B70
-#define kdlsym_addr_kern_openat                            0x00440BD0
-#define kdlsym_addr_kern_readv                             0x0005E310
-#define kdlsym_addr_kern_reboot                            0x00098EE0
-#define kdlsym_addr_kern_sysents                           0x01034790
-#define kdlsym_addr_kernel_map                             0x01B39218
+#define kdlsym_addr_kern_close                             0x0042BA80 //ok
+#define kdlsym_addr_kern_mkdirat                           0x00445CD0 //fixed
+#define kdlsym_addr_kern_open                              0x00440B70 //ok
+#define kdlsym_addr_kern_openat                            0x00440BD0 //ok
+#define kdlsym_addr_kern_readv                             0x0005E310 //ok
+#define kdlsym_addr_kern_reboot                            0x00098EE0 //ok
+#define kdlsym_addr_kern_sysents                           0x01034790 //ok
+#define kdlsym_addr_kernel_map                             0x01B39218 //ok
 #define kdlsym_addr_kmem_alloc                             0x0016DF30
 #define kdlsym_addr_kmem_free                              0x0016E100
 #define kdlsym_addr_kproc_create                           0x00465590
