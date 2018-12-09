@@ -79,14 +79,14 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr_sbl_eap_internal_partition_key         0x0259CCD0 //ok
 #define kdlsym_addr_sbl_pfs_sx                             0x02529310 //ok
 #define kdlsym_addr_sceSblAuthMgrIsLoadable2               0x00629040 //ok
-#define kdlsym_addr_sceSblAuthMgrSmStart                   0x00625410
-#define kdlsym_addr_sceSblAuthMgrSmVerifyHeader            0x00626640
-#define kdlsym_addr_sceSblAuthMgrVerifyHeader              0x006290A0
-#define kdlsym_addr_sceSblDriverSendMsg                    0x00603CA0
-#define kdlsym_addr_sceSblGetEAPInternalPartitionKey       0x0060C6E0
-#define kdlsym_addr_sceSblKeymgrClearKey                   0x00610D80
-#define kdlsym_addr_sceSblKeymgrSetKeyForPfs               0x006109E0
-#define kdlsym_addr_sceSblKeymgrSmCallfunc                 0x00611530
+#define kdlsym_addr_sceSblAuthMgrSmStart                   0x00625410 //ok
+#define kdlsym_addr_sceSblAuthMgrSmVerifyHeader            0x00626640 //ok
+#define kdlsym_addr_sceSblAuthMgrVerifyHeader              0x006290A0 //ok
+#define kdlsym_addr_sceSblDriverSendMsg                    0x00603CA0 //ok
+#define kdlsym_addr_sceSblGetEAPInternalPartitionKey       0x0060C6E0 //ok
+#define kdlsym_addr_sceSblKeymgrClearKey                   0x00610D80 //ok
+#define kdlsym_addr_sceSblKeymgrSetKeyForPfs               0x006109E0 //ok
+#define kdlsym_addr_sceSblKeymgrSmCallfunc                 0x00611530 //ok
 #define kdlsym_addr_sceSblPfsSetKeys                       0x006095E0
 #define kdlsym_addr_sceSblServiceMailbox                   0x00617AB0
 #define kdlsym_addr_self_orbis_sysvec                      0x01468700
