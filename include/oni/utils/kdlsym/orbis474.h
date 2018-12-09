@@ -25,23 +25,23 @@ for the platforms that do enable kernel ASLR (Address Space Layout Randomization
 #define kdlsym_addr__vm_map_unlock_read                    0x00392F20 //ok
 #define kdlsym_addr_AesCbcCfb128Decrypt                    0x00179950 //ok
 #define kdlsym_addr_AesCbcCfb128Encrypt                    0x00179720 //ok
-#define kdlsym_addr_allproc                                0x01ADF718
-#define kdlsym_addr_allproc_lock                           0x01ADF6B8
-#define kdlsym_addr_copyin                                 0x00149F20
-#define kdlsym_addr_copyinstr                              0x0014A390
-#define kdlsym_addr_critical_enter                         0x0023F9E0
-#define kdlsym_addr_critical_exit                          0x0023F9F0
+#define kdlsym_addr_allproc                                0x01ADF718 //ok
+#define kdlsym_addr_allproc_lock                           0x01ADF6B8 //ok
+#define kdlsym_addr_copyin                                 0x00149F20 //ok
+#define kdlsym_addr_copyinstr                              0x0014A390 //ok
+#define kdlsym_addr_critical_enter                         0x0023F9E0 //ok
+#define kdlsym_addr_critical_exit                          0x0023F9F0 //ok
 //#define kdlsym_addr_dmem_start_app_process                 0x0
-#define kdlsym_addr_eventhandler_register                  0x003CA6A0
-#define kdlsym_addr_exec_new_vmspace                       0x002EAA50
-#define kdlsym_addr_faultin                                0x00311010
-#define kdlsym_addr_fget_unlocked                          0x0042DFD0
-#define kdlsym_addr_fpu_ctx                                0x02528CC0
-#define kdlsym_addr_fpu_kern_enter                         0x00058B60
-#define kdlsym_addr_fpu_kern_leave                         0x00058C60
-#define kdlsym_addr_free                                   0x003F87A0
-#define kdlsym_addr_gpu_va_page_list                       0x02525DD0
-#define kdlsym_addr_icc_nvs_read                           0x0001B850
+#define kdlsym_addr_eventhandler_register                  0x003CA6A0 //ok
+#define kdlsym_addr_exec_new_vmspace                       0x002EAA50 //ok
+#define kdlsym_addr_faultin                                0x00311010 //ok
+#define kdlsym_addr_fget_unlocked                          0x0042DFD0 //ok
+#define kdlsym_addr_fpu_ctx                                0x02528CC0 //ok 
+#define kdlsym_addr_fpu_kern_enter                         0x00058B60 //ok
+#define kdlsym_addr_fpu_kern_leave                         0x00058C60 //ok
+#define kdlsym_addr_free                                   0x003F87A0 //ok
+#define kdlsym_addr_gpu_va_page_list                       0x02525DD0 //ok
+#define kdlsym_addr_icc_nvs_read                           0x0001B850 //ok
 #define kdlsym_addr_kern_close                             0x0042BA80
 #define kdlsym_addr_kern_mkdirat                           0x00444250
 #define kdlsym_addr_kern_open                              0x00440B70
