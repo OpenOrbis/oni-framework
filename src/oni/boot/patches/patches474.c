@@ -6,7 +6,7 @@
 	Please, please, please!
 	Keep patches consistent with the used patch style for readability.
 */
-void install_prerunPatches_501()
+void install_prerunPatches_474()
 {
 	// You must assign the kernel base pointer before anything is done
 	if (!gKernelBase)
@@ -17,11 +17,11 @@ void install_prerunPatches_501()
 	uint8_t *kmem;
 
 	// Enable UART
-	kmem = (uint8_t *)&gKernelBase[0x019ECEB0]; // 0x019ECEB0 0x009ECAE0
+	kmem = (uint8_t *)&gKernelBase[0x0199FC18]; //based on 5.01 patch
 	kmem[0] = 0x00;
 
 	// Verbose Panics
-	kmem = (uint8_t *)&gKernelBase[0x00171517];
+	kmem = (uint8_t *)&gKernelBase[0x003DCC77];
 	kmem[0] = 0x90;
 	kmem[1] = 0x90;
 	kmem[2] = 0x90;
@@ -31,7 +31,7 @@ void install_prerunPatches_501()
 	kmem[6] = 0x8B;
 	kmem[7] = 0x34;
 	
-	kmem = (uint8_t *)&gKernelBase[0x00011730];
+	kmem = (uint8_t *)&gKernelBase[0x00169790];
 	kmem[0] = 0xB8;
 	kmem[1] = 0x01;
 	kmem[2] = 0x00;
@@ -41,7 +41,7 @@ void install_prerunPatches_501()
 	kmem[6] = 0x90;
 	kmem[7] = 0x90;
 
-	kmem = (uint8_t *)&gKernelBase[0x00011750];
+	kmem = (uint8_t *)&gKernelBase[0x001697B0]; //ok
 	kmem[0] = 0xB8;
 	kmem[1] = 0x01;
 	kmem[2] = 0x00;
