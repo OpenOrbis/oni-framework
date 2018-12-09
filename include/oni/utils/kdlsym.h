@@ -12,6 +12,8 @@
 #include "kdlsym/orbis405.h"
 #elif ONI_PLATFORM==ONI_PLATFORM_ORBIS_BSD_455
 #include "kdlsym/orbis455.h"
+#elif ONI_PLATFORM==ONI_PLATFORM_ORBIS_BSD_474
+#include "kdlsym/orbis474.h"
 #elif ONI_PLATFORM==ONI_PLATFORM_ORBIS_BSD_501
 #include "kdlsym/orbis501.h"
 #elif ONI_PLATFORM==ONI_PLATFORM_ORBIS_BSD_505
