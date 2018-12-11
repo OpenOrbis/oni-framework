@@ -29,6 +29,16 @@ void pbconnection_init(struct pbconnection_t* connection)
 	connection->running = false;
 }
 
+void* myAlloc(void* allocator_data, size_t size)
+{
+	return k_malloc(size);
+}
+
+void myFree(void* allocator_data, void* pointer)
+{
+	k_free(pointer);
+}
+
 void pbconnection_thread(struct pbconnection_t* connection)
 {
 	void(*kthread_exit)(void) = kdlsym(kthread_exit);
@@ -175,7 +185,12 @@ void pbconnection_thread(struct pbconnection_t* connection)
 
 		WriteLog(LL_Warn, "here");
 
-		MessageHeader* header = message_header__unpack(NULL, dataLength, buf);
+		ProtobufCAllocator allocator;
+		allocator.allocator_data = NULL;
+		allocator.alloc = myAlloc;
+		allocator.free = myFree;
+
+		MessageHeader* header = message_header__unpack(&allocator, dataLength, buf);
 
 		WriteLog(LL_Warn, "here");
 
@@ -208,7 +223,7 @@ void pbconnection_thread(struct pbconnection_t* connection)
 		}
 
 		// Free our protobuf thing
-		message_header__free_unpacked(header, NULL);
+		message_header__free_unpacked(header, &allocator);
 
 		WriteLog(LL_Warn, "here");
 

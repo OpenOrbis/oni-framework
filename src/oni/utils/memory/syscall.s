@@ -1,7 +1,7 @@
 .intel_syntax noprefix
 .text
 
-.global syscall1, syscall2, syscall3, syscall4, syscall5, _Allocate5MB, _mmap
+.global syscall1, syscall2, syscall3, syscall4, syscall5, syscall6, _mmap
 
 syscall:
     mov rax,rdi
@@ -48,24 +48,19 @@ syscall5:
     syscall
     ret
 
-_Allocate5MB:
-	mov rax, 477
-	mov rdi, 0
-	mov rsi, 5242880 # Allocate 5MB # 0x4000 = 16384
-	mov rdx, 7 # PROT_READ | PROT_WRITE | PROT_EXEC
-	mov r10, 4096 # MAP_ANON
-	mov r8, -1
-	mov r9, 0
-	syscall
-	ret
+syscall6:
+	mov rax,rdi
+    mov rdi,rsi
+    mov rsi,rdx
+    mov rdx,rcx
+    mov r10,r8
+    mov r8,r9
+	mov r9, [rsp]
+    syscall
+    ret
 
 _mmap:
 	mov rax, 477
-	mov rdi, 0
-	mov rsi, 16384 # Allocate 1 PAGE_SIZE # 0x4000 = 16384
-	mov rdx, 7 # PROT_READ | PROT_WRITE | PROT_EXEC
-	mov r10, 4096 # MAP_ANON
-	mov r8, -1
-	mov r9, 0
+	mov r10, rcx
 	syscall
 	ret

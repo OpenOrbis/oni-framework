@@ -121,4 +121,3 @@ void install_prerunPatches_474()
 	kmem[3] = 0x90;
 	kmem[4] = 0x90;
 }
-
