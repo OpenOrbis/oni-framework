@@ -7,6 +7,7 @@
 /*
 These are the required functions in order for the Oni Framework to operate properly
 These are all offsets into the base of the kernel. They expect all standard FreeBSD 9 prototypes
+
 The reason we do not hardcode offsets here, is due to the different platforms that are supported, and
 for the platforms that do enable kernel ASLR (Address Space Layout Randomization?)
 */
