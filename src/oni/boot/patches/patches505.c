@@ -19,7 +19,7 @@ void install_prerunPatches_505()
 	kmem[0] = 0x00;
 
 	// Verbose Panics
-	kmem = (uint8_t *)&gKernelBase[0x00171580];
+	kmem = (uint8_t *)&gKernelBase[0x00171627];
 	kmem[0] = 0x90;
 	kmem[1] = 0x90;
 	kmem[2] = 0x90;
@@ -50,7 +50,7 @@ void install_prerunPatches_505()
 	kmem[6] = 0x90;
 	kmem[7] = 0x90;
 
-	kmem = (uint8_t *)&gKernelBase[0x00011756];
+	kmem = (uint8_t *)&gKernelBase[0x00011750];
 	kmem[0] = 0xB8;
 	kmem[1] = 0x01;
 	kmem[2] = 0x00;
