@@ -19,7 +19,7 @@ struct initparams_t
 
 	// Entrypoint
 	// Userland should set this to NULL
-	void* entrypoint;
+	void(*entrypoint)(void*);
 
 	// If this is an elf launch or not
 	uint8_t isElf : 1;
