@@ -49,6 +49,7 @@
 #include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
 
 #include <protobuf-c/protobuf-c.h>
+#include <oni/utils/memory/allocator.h>
 
 #define TRUE				1
 #define FALSE				0
@@ -148,13 +149,13 @@ protobuf_c_version_number(void)
 static void *
 system_alloc(void *allocator_data, size_t size)
 {
-	return malloc(size);
+	return k_malloc(size);
 }
 
 static void
 system_free(void *allocator_data, void *data)
 {
-	free(data);
+	k_free(data);
 }
 
 static inline void *

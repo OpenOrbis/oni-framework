@@ -39,6 +39,8 @@ void* k_malloc(size_t size)
 	// Set our pointer header
 	(*(uint64_t*)data) = size;
 
+	WriteLog(LL_Debug, "set header size");
+
 	// Return the start of the requested data
 	return data + sizeof(uint64_t);
 }

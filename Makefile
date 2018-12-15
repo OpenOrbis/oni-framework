@@ -52,7 +52,7 @@ SFLAGS	:= -nodefaultlibs -nostdlib -fPIC
 
 # Linker flags
 # Removed From GCC: -nostartfiles -Wl,--build-id=none  -Xlinker -T link.x
-LFLAGS	:= $(L_DIRS) -nodefaultlibs -nostdlib -fPIC -gc-sections -nmagic
+LFLAGS	:= $(L_DIRS) -nodefaultlibs -nostdlib -pic -gc-sections -nmagic
 
 # Calculate the listing of all file paths
 CFILES	:=	$(wildcard $(SRC_DIR)/*.c)

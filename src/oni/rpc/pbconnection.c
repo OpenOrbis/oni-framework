@@ -185,12 +185,7 @@ void pbconnection_thread(struct pbconnection_t* connection)
 
 		WriteLog(LL_Warn, "here");
 
-		ProtobufCAllocator allocator;
-		allocator.allocator_data = NULL;
-		allocator.alloc = myAlloc;
-		allocator.free = myFree;
-
-		MessageHeader* header = message_header__unpack(&allocator, dataLength, buf);
+		MessageHeader* header = message_header__unpack(NULL, dataLength, buf);
 
 		WriteLog(LL_Warn, "here");
 
@@ -223,7 +218,7 @@ void pbconnection_thread(struct pbconnection_t* connection)
 		}
 
 		// Free our protobuf thing
-		message_header__free_unpacked(header, &allocator);
+		message_header__free_unpacked(header, NULL);
 
 		WriteLog(LL_Warn, "here");
 
