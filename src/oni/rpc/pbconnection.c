@@ -51,24 +51,16 @@ void pbconnection_thread(struct pbconnection_t* connection)
 	// Do not hold this lock
 	_mtx_unlock_flags(&connection->lock, 0, __FILE__, __LINE__);
 
-	WriteLog(LL_Warn, "here");
-
 	connection->running = true;
 
 	const uint32_t maxMessageSize = PAGE_SIZE * 2;
 	uint8_t* data = NULL;
 	while (connection->running)
 	{
-		WriteLog(LL_Warn, "here");
-
 		uint32_t dataLength = 0;
 		data = NULL;
 
-		WriteLog(LL_Warn, "here");
-
 		ssize_t result = krecv(connection->socket, &dataLength, sizeof(dataLength), 0);
-
-		WriteLog(LL_Warn, "here");
 
 		// Verify the recv worked successfully
 		if (result <= 0)
@@ -77,8 +69,6 @@ void pbconnection_thread(struct pbconnection_t* connection)
 			goto disconnect;
 		}
 
-		WriteLog(LL_Warn, "here");
-
 		// Verify the data we wanted was recv'd
 		if (result != sizeof(dataLength))
 		{
@@ -86,16 +76,12 @@ void pbconnection_thread(struct pbconnection_t* connection)
 			goto disconnect;
 		}
 
-		WriteLog(LL_Warn, "here");
-
 		// We will set PAGE_SIZE as our artifical max length
 		if (dataLength > maxMessageSize)
 		{
 			WriteLog(LL_Error, "data length (%x) > max (%x).", dataLength, maxMessageSize);
 			goto disconnect;
 		}
-
-		WriteLog(LL_Warn, "here");
 
 		// Allocate some new data
 		data = k_malloc(dataLength);
@@ -105,12 +91,8 @@ void pbconnection_thread(struct pbconnection_t* connection)
 			goto disconnect;
 		}
 
-		WriteLog(LL_Warn, "here");
-
 		// Zero our newly allocated buffer
 		memset(data, 0, dataLength);
-
-		WriteLog(LL_Warn, "here");
 
 		// Recv our message buffer
 		uint32_t bufferRecv = 0;
@@ -121,29 +103,19 @@ void pbconnection_thread(struct pbconnection_t* connection)
 			goto disconnect;
 		}
 
-		WriteLog(LL_Warn, "here");
-
 		// Set our current buffer recv count
 		bufferRecv = result;
-
-		WriteLog(LL_Warn, "here");
 
 		// Ensure that we get all of our data
 		while (bufferRecv < dataLength)
 		{
-			WriteLog(LL_Warn, "here");
-
 			// Calculate how much data we have left
 			uint32_t amountLeft = dataLength - bufferRecv;
 			if (amountLeft == 0)
 				break;
 
-			WriteLog(LL_Warn, "here");
-
 			// Attempt to read the rest of the buffer
 			result = krecv(connection->socket, data + bufferRecv, amountLeft, 0);
-
-			WriteLog(LL_Warn, "here");
 
 			// Check for errors
 			if (result <= 0)
@@ -151,8 +123,6 @@ void pbconnection_thread(struct pbconnection_t* connection)
 				WriteLog(LL_Error, "could not recv the rest of data (%d).", result);
 				goto disconnect;
 			}
-
-			WriteLog(LL_Warn, "here");
 
 			// Add the new amount of data that we recv'd
 			bufferRecv += result;
@@ -166,40 +136,24 @@ void pbconnection_thread(struct pbconnection_t* connection)
 
 		// Decode the message header		
 		uint8_t buf[1024];
-		WriteLog(LL_Warn, "here");
-
 		memset(buf, 0, sizeof(buf));
-
-		WriteLog(LL_Warn, "here");
-
 		memcpy(buf, data, dataLength);
 
-		WriteLog(LL_Warn, "here");
-
 		MessageHeader* header = message_header__unpack(NULL, dataLength, buf);
-
-		WriteLog(LL_Warn, "here");
-
 		if (!header)
 		{
 			WriteLog(LL_Error, "could not decode header\n");
 			goto disconnect;
 		}
 
-		WriteLog(LL_Warn, "here");
-
 		// Validate the message category
 		MessageCategory category = header->category;
-
-		WriteLog(LL_Warn, "here");
 
 		if (category < MESSAGE_CATEGORY__NONE || category > MESSAGE_CATEGORY__MAX) // TODO: Add Max
 		{
 			WriteLog(LL_Error, "invalid category (%d).", category);
 			goto disconnect;
 		}
-
-		WriteLog(LL_Warn, "here");
 
 		// Validate the error code
 		if (header->error != 0)
@@ -211,12 +165,8 @@ void pbconnection_thread(struct pbconnection_t* connection)
 		// Free our protobuf thing
 		message_header__free_unpacked(header, NULL);
 
-		WriteLog(LL_Warn, "here");
-
 		// This creates a copy of the data
 		struct ref_t* reference = ref_fromObject(data, dataLength);
-
-		WriteLog(LL_Warn, "here");
 
 		if (!reference)
 		{
@@ -224,32 +174,21 @@ void pbconnection_thread(struct pbconnection_t* connection)
 			goto disconnect;
 		}
 
-		WriteLog(LL_Warn, "here");
-
 		// TODO: You will have to change endpoint to accept protobuf
 		messagemanager_sendRequest(reference);
-
-		WriteLog(LL_Warn, "here");
 
 		// We no longer need to hold this reference
 		ref_release(reference);
 	}
 
-	WriteLog(LL_Warn, "here");
-
 disconnect:
 	connection->running = false;
-
-	WriteLog(LL_Warn, "here");
 
 	// Validate everything and send the disconnect message, pbserver handles cleanup
 	if (connection->server && connection->onClientDisconnect)
 	{
-		WriteLog(LL_Warn, "here");
 		connection->onClientDisconnect(connection->server, connection);
 	}
-
-	WriteLog(LL_Warn, "here");
 
 	kthread_exit();
 }
