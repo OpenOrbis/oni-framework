@@ -29,22 +29,13 @@ void pbconnection_init(struct pbconnection_t* connection)
 	connection->running = false;
 }
 
-void* myAlloc(void* allocator_data, size_t size)
-{
-	return k_malloc(size);
-}
-
-void myFree(void* allocator_data, void* pointer)
-{
-	k_free(pointer);
-}
-
 void pbconnection_thread(struct pbconnection_t* connection)
 {
 	void(*kthread_exit)(void) = kdlsym(kthread_exit);
 	void(*_mtx_lock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_lock_flags);
 	void(*_mtx_unlock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_unlock_flags);
 	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
+	void* (*memcpy)(void* dest, const void* src, size_t n) = kdlsym(memcpy);
 
 	if (!connection)
 		return;

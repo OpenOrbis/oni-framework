@@ -17,6 +17,7 @@ void pbserver_serverThread(void* userData);
 void pbserver_init(struct pbserver_t* server)
 {
 	void(*mtx_init)(struct mtx *m, const char *name, const char *type, int opts) = kdlsym(mtx_init);
+	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
 
 	// Assigns all of the functions that we should need
 	if (!server)
@@ -32,6 +33,7 @@ void pbserver_init(struct pbserver_t* server)
 uint8_t pbserver_startup(struct pbserver_t* server, uint16_t port)
 {
 	int(*kthread_add)(void(*func)(void*), void* arg, struct proc* procptr, struct thread** tdptr, int flags, int pages, const char* fmt, ...) = kdlsym(kthread_add);
+	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
 
 	WriteLog(LL_Warn, "here");
 

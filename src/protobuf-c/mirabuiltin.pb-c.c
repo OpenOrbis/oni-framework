@@ -8,6 +8,12 @@
 
 #include <protobuf-c/mirabuiltin.pb-c.h>
 
+void memcpy(void* dst, void* src, size_t cnt)
+{
+	for (size_t i = 0; i < cnt; ++i)
+		((uint8_t*)dst)[i] = ((uint8_t*)src)[i];
+}
+
 void   message_header__init
 (MessageHeader         *message)
 {
