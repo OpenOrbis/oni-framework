@@ -11,7 +11,7 @@
 void   pb_message__init
                      (PbMessage         *message)
 {
-  static PbMessage init_value = PB_MESSAGE__INIT;
+  static const PbMessage init_value = PB_MESSAGE__INIT;
   *message = init_value;
 }
 size_t pb_message__get_packed_size
@@ -48,6 +48,8 @@ void   pb_message__free_unpacked
                      (PbMessage *message,
                       ProtobufCAllocator *allocator)
 {
+  if(!message)
+    return;
   assert(message->base.descriptor == &pb_message__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
@@ -56,7 +58,7 @@ static const ProtobufCFieldDescriptor pb_message__field_descriptors[3] =
   {
     "category",
     1,
-    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_LABEL_NONE,
     PROTOBUF_C_TYPE_ENUM,
     0,   /* quantifier_offset */
     offsetof(PbMessage, category),
@@ -68,7 +70,7 @@ static const ProtobufCFieldDescriptor pb_message__field_descriptors[3] =
   {
     "type",
     2,
-    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_LABEL_NONE,
     PROTOBUF_C_TYPE_UINT32,
     0,   /* quantifier_offset */
     offsetof(PbMessage, type),
@@ -80,7 +82,7 @@ static const ProtobufCFieldDescriptor pb_message__field_descriptors[3] =
   {
     "data",
     3,
-    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_LABEL_NONE,
     PROTOBUF_C_TYPE_BYTES,
     0,   /* quantifier_offset */
     offsetof(PbMessage, data),

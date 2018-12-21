@@ -2,6 +2,7 @@
 #include <protobuf-c/mirabuiltin.pb-c.h>
 
 #include <oni/utils/memory/allocator.h>
+#include <oni/utils/kdlsym.h>
 
 PbContainer* pbcontainer_create(PbMessage* message)
 {

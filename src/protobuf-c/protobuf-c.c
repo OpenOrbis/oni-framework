@@ -45,13 +45,12 @@
  * \todo Use size_t consistently.
  */
 
-//#include <stdlib.h>	/* for malloc, free */
-//#include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
+#include <stdlib.h>	/* for malloc, free */
+#include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
 
 #include <protobuf-c/protobuf-c.h>
 #include <oni/utils/memory/allocator.h>
-#include <oni/utils/kdlsym.h>
-#include <oni/utils/logger.h>
+#include <oni/utils/kernel.h>
 
 #define TRUE				1
 #define FALSE				0
@@ -62,12 +61,6 @@
 #ifdef _MSC_VER
 # define inline __inline
 #endif
-
-//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-//size_t (*strlen)(const char *str) = NULL;
-//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-//void *(*memset)(void *str, int c, size_t n) = NULL;
-//int(*strcmp)(const char *str1, const char *str2) = NULL;
 
 /**
  * \defgroup internal Internal functions and macros
@@ -196,12 +189,6 @@ void
 protobuf_c_buffer_simple_append(ProtobufCBuffer *buffer,
 				size_t len, const uint8_t *data)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	ProtobufCBufferSimple *simp = (ProtobufCBufferSimple *) buffer;
 	size_t new_len = simp->len + len;
 
@@ -429,12 +416,6 @@ static size_t
 required_field_get_packed_size(const ProtobufCFieldDescriptor *field,
 			       const void *member)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	size_t rv = get_tag_size(field->id);
 
 	switch (field->type) {
@@ -632,12 +613,6 @@ static size_t
 repeated_field_get_packed_size(const ProtobufCFieldDescriptor *field,
 			       size_t count, const void *member)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	size_t header_size;
 	size_t rv = 0;
 	unsigned i;
@@ -942,12 +917,6 @@ sint64_pack(int64_t value, uint8_t *out)
 static inline size_t
 fixed32_pack(uint32_t value, void *out)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 #if !defined(WORDS_BIGENDIAN)
 	memcpy(out, &value, 4);
 #else
@@ -979,12 +948,6 @@ fixed32_pack(uint32_t value, void *out)
 static inline size_t
 fixed64_pack(uint64_t value, void *out)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 #if !defined(WORDS_BIGENDIAN)
 	memcpy(out, &value, 8);
 #else
@@ -1032,12 +995,6 @@ boolean_pack(protobuf_c_boolean value, uint8_t *out)
 static inline size_t
 string_pack(const char *str, uint8_t *out)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	if (str == NULL) {
 		out[0] = 0;
 		return 1;
@@ -1063,11 +1020,6 @@ string_pack(const char *str, uint8_t *out)
 static inline size_t
 binary_data_pack(const ProtobufCBinaryData *bd, uint8_t *out)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
 	size_t len = bd->len;
 	size_t rv = uint32_pack(len, out);
 	memcpy(out + rv, bd->data, len);
@@ -1088,12 +1040,6 @@ binary_data_pack(const ProtobufCBinaryData *bd, uint8_t *out)
 static inline size_t
 prefixed_message_pack(const ProtobufCMessage *message, uint8_t *out)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	//size_t (*strlen)(const char *str) = NULL;
-	void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	if (message == NULL) {
 		out[0] = 0;
 		return 1;
@@ -1101,7 +1047,7 @@ prefixed_message_pack(const ProtobufCMessage *message, uint8_t *out)
 		size_t rv = protobuf_c_message_pack(message, out + 1);
 		uint32_t rv_packed_size = uint32_size(rv);
 		if (rv_packed_size != 1)
-			memmove(out + rv_packed_size, out + 1, rv);
+			(void)memmove(out + rv_packed_size, out + 1, rv);
 		return uint32_pack(rv, out) + rv;
 	}
 }
@@ -1332,12 +1278,6 @@ sizeof_elt_in_repeated_array(ProtobufCType type)
 static void
 copy_to_little_endian_32(void *out, const void *in, const unsigned n)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 #if !defined(WORDS_BIGENDIAN)
 	memcpy(out, in, n * 4);
 #else
@@ -1361,12 +1301,6 @@ copy_to_little_endian_32(void *out, const void *in, const unsigned n)
 static void
 copy_to_little_endian_64(void *out, const void *in, const unsigned n)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
-
 #if !defined(WORDS_BIGENDIAN)
 	memcpy(out, in, n * 8);
 #else
@@ -1423,12 +1357,6 @@ static size_t
 repeated_field_pack(const ProtobufCFieldDescriptor *field,
 		    size_t count, const void *member, uint8_t *out)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	//size_t (*strlen)(const char *str) = NULL;
-	void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	void *array = *(void * const *) member;
 	unsigned i;
 
@@ -1510,7 +1438,7 @@ repeated_field_pack(const ProtobufCFieldDescriptor *field,
 		actual_length_size = uint32_size(payload_len);
 		if (length_size_min != actual_length_size) {
 			assert(actual_length_size == length_size_min + 1);
-			memmove(out + header_len + 1, out + header_len,
+			(void)memmove(out + header_len + 1, out + header_len,
 				payload_len);
 			header_len++;
 		}
@@ -1533,12 +1461,6 @@ repeated_field_pack(const ProtobufCFieldDescriptor *field,
 static size_t
 unknown_field_pack(const ProtobufCMessageUnknownField *field, uint8_t *out)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
-
 	size_t rv = tag_pack(field->tag, out);
 	out[0] |= field->wire_type;
 	memcpy(out + rv, field->data, field->len);
@@ -1626,12 +1548,6 @@ static size_t
 required_field_pack_to_buffer(const ProtobufCFieldDescriptor *field,
 			      const void *member, ProtobufCBuffer *buffer)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	size_t rv;
 	uint8_t scratch[MAX_UINT64_ENCODED_SIZE * 2];
 
@@ -2011,9 +1927,6 @@ repeated_field_pack_to_buffer(const ProtobufCFieldDescriptor *field,
 		buffer->append(buffer, rv, scratch);
 		tmp = pack_buffer_packed_payload(field, count, array, buffer);
 		assert(tmp == payload_len);
-		if (tmp == 12)
-		{
-		}
 		return rv + payload_len;
 	} else {
 		size_t siz;
@@ -2252,12 +2165,6 @@ merge_messages(ProtobufCMessage *earlier_msg,
 	       ProtobufCMessage *latter_msg,
 	       ProtobufCAllocator *allocator)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
-
 	unsigned i;
 	const ProtobufCFieldDescriptor *fields =
 		latter_msg->descriptor->fields;
@@ -2413,7 +2320,7 @@ merge_messages(ProtobufCMessage *earlier_msg,
 				 * message, earlier message will be freed after
 				 * this function is called anyway
 				 */
-				memset(earlier_elem, 0, el_size);
+				(void)memset(earlier_elem, 0, el_size);
 
 				if (field->quantifier_offset != 0) {
 					/* Set the has field or the case enum,
@@ -2515,11 +2422,6 @@ unzigzag32(uint32_t v)
 static inline uint32_t
 parse_fixed_uint32(const uint8_t *data)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 #if !defined(WORDS_BIGENDIAN)
 	uint32_t t;
 	memcpy(&t, data, 4);
@@ -2564,11 +2466,6 @@ unzigzag64(uint64_t v)
 static inline uint64_t
 parse_fixed_uint64(const uint8_t *data)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 #if !defined(WORDS_BIGENDIAN)
 	uint64_t t;
 	memcpy(&t, data, 8);
@@ -2595,11 +2492,6 @@ parse_required_member(ScannedMember *scanned_member,
 		      ProtobufCAllocator *allocator,
 		      protobuf_c_boolean maybe_clear)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 	unsigned len = scanned_member->len;
 	const uint8_t *data = scanned_member->data;
 	ProtobufCWireType wire_type = scanned_member->wire_type;
@@ -2734,12 +2626,6 @@ parse_oneof_member (ScannedMember *scanned_member,
 		    ProtobufCMessage *message,
 		    ProtobufCAllocator *allocator)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	uint32_t *oneof_case = STRUCT_MEMBER_PTR(uint32_t, message,
 					       scanned_member->field->quantifier_offset);
 
@@ -2785,7 +2671,7 @@ parse_oneof_member (ScannedMember *scanned_member,
 			break;
 		}
 
-		memset (member, 0, el_size);
+		(void)memset (member, 0, el_size);
 	}
 	if (!parse_required_member (scanned_member, member, allocator, TRUE))
 		return FALSE;
@@ -2849,11 +2735,6 @@ parse_packed_repeated_member(ScannedMember *scanned_member,
 			     void *member,
 			     ProtobufCMessage *message)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 	const ProtobufCFieldDescriptor *field = scanned_member->field;
 	size_t *p_n = STRUCT_MEMBER_PTR(size_t, message, field->quantifier_offset);
 	size_t siz = sizeof_elt_in_repeated_array(field->type);
@@ -2991,11 +2872,6 @@ parse_member(ScannedMember *scanned_member,
 	     ProtobufCMessage *message,
 	     ProtobufCAllocator *allocator)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 	const ProtobufCFieldDescriptor *field = scanned_member->field;
 	void *member;
 
@@ -3055,15 +2931,9 @@ static void
 message_init_generic(const ProtobufCMessageDescriptor *desc,
 		     ProtobufCMessage *message)
 {
-	void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = NULL;
-
 	unsigned i;
 
-	memset(message, 0, desc->sizeof_message);
+	(void)memset(message, 0, desc->sizeof_message);
 	message->descriptor = desc;
 	for (i = 0; i < desc->n_fields; i++) {
 		if (desc->fields[i].default_value != NULL &&
@@ -3145,12 +3015,6 @@ protobuf_c_message_unpack(const ProtobufCMessageDescriptor *desc,
 			  ProtobufCAllocator *allocator,
 			  size_t len, const uint8_t *data)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
-
 	ProtobufCMessage *rv;
 	size_t rem = len;
 	const uint8_t *at = data;
@@ -3196,7 +3060,7 @@ protobuf_c_message_unpack(const ProtobufCMessageDescriptor *desc,
 		}
 		required_fields_bitmap_alloced = TRUE;
 	}
-	memset(required_fields_bitmap, 0, required_fields_bitmap_len);
+	(void)memset(required_fields_bitmap, 0, required_fields_bitmap_len);
 
 	/*
 	 * Generated code always defines "message_init". However, we provide a
@@ -3622,11 +3486,6 @@ protobuf_c_service_invoke_internal(ProtobufCService *service,
 				   ProtobufCClosure closure,
 				   void *closure_data)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	//void *(*memset)(void *str, int c, size_t n) = NULL;
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 	GenericHandler *handlers;
 	GenericHandler handler;
 
@@ -3656,17 +3515,11 @@ protobuf_c_service_generated_init(ProtobufCService *service,
 				  const ProtobufCServiceDescriptor *descriptor,
 				  ProtobufCServiceDestroy destroy)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = NULL;
-	//size_t (*strlen)(const char *str) = NULL;
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = NULL;
-	void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	//int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
-
 	ASSERT_IS_SERVICE_DESCRIPTOR(descriptor);
 	service->descriptor = descriptor;
 	service->destroy = destroy;
 	service->invoke = protobuf_c_service_invoke_internal;
-	memset(service + 1, 0, descriptor->n_methods * sizeof(GenericHandler));
+	(void)memset(service + 1, 0, descriptor->n_methods * sizeof(GenericHandler));
 }
 
 void protobuf_c_service_destroy(ProtobufCService *service)
@@ -3680,11 +3533,6 @@ const ProtobufCEnumValue *
 protobuf_c_enum_descriptor_get_value_by_name(const ProtobufCEnumDescriptor *desc,
 					     const char *name)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 	unsigned start = 0;
 	unsigned count;
 
@@ -3725,11 +3573,6 @@ const ProtobufCFieldDescriptor *
 protobuf_c_message_descriptor_get_field_by_name(const ProtobufCMessageDescriptor *desc,
 						const char *name)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
 	unsigned start = 0;
 	unsigned count;
 	const ProtobufCFieldDescriptor *field;
@@ -3774,12 +3617,6 @@ const ProtobufCMethodDescriptor *
 protobuf_c_service_descriptor_get_method_by_name(const ProtobufCServiceDescriptor *desc,
 						 const char *name)
 {
-	//void* (*memcpy)(void *str1, const void *str2, size_t n) = kdlsym(memcpy);
-	//size_t (*strlen)(const char *str) = kdlsym(strlen);
-	//void *(*memmove)(void *str1, const void *str2, size_t n) = kdlsym(memmove);
-	//void *(*memset)(void *str, int c, size_t n) = kdlsym(memset);
-	int(*strcmp)(const char *str1, const char *str2) = kdlsym(strcmp);
-
 	unsigned start = 0;
 	unsigned count;
 

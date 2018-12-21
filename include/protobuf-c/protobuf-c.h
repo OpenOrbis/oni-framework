@@ -198,15 +198,13 @@ size_t foo__bar__baz_bah__pack_to_buffer
 
 //#include <assert.h>
 //#include <limits.h>
-//#include <stddef.h>
+#include <stddef.h>
 //#include <stdint.h>
 #include <oni/utils/types.h>
-#include <oni/utils/kdlsym.h>
 
-#ifndef assert
+#define INT_MAX __INT_MAX__
+
 #define assert(x) 
-#endif
-#define INT_MAX 2147483647
 
 #ifdef __cplusplus
 # define PROTOBUF_C__BEGIN_DECLS	extern "C" {
@@ -1068,7 +1066,7 @@ do {                                                                    \
 				(simp_buf)->allocator,                  \
 				(simp_buf)->data);			\
 		else                                                    \
-			k_free((simp_buf)->data);                         \
+			free((simp_buf)->data);                         \
 	}                                                               \
 } while (0)
 

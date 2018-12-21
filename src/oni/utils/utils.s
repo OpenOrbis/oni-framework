@@ -10,6 +10,8 @@
 .global memmove
 .global memset
 .global memcmp
+.global strlen
+.global strcmp
 
 kernelRdmsr:
 	mov	ecx, edi
@@ -128,3 +130,50 @@ memcmp:                                 # @memcmp
 .LBB0_3:
         sub     eax, r8d
         ret
+
+strlen:
+    # save rdi
+    push rdi
+
+    # *al = '\0'
+    xor al, al
+    # clear rcx
+    xor rcx, rcx
+    # *rcx = ~*rcx
+    not rcx
+    # while (*al /* '\0' */ != *rdi) ++rdi, --*rcx#
+    cld
+    repne scasb
+    # *rcx = ~*rcx
+    not rcx
+    dec rcx
+
+    # set return value
+    mov rax, rcx
+    # restore rdi
+    pop rdi
+
+    ret
+
+strcmp:
+myasm_strcmp:
+    mov r8, 0 #i = 0
+    mov r10, 0
+myasm_loop:
+    mov r9b, [rdi + r8]
+    mov r10b, [rsi + r8]
+
+    cmp r9b, r10b
+    jne myasm_end
+    
+    cmp r9b, 0
+    je myasm_end
+
+    inc r8 #i++
+    jmp myasm_loop
+
+myasm_end:
+    mov rax, 0
+    mov al, r9b
+    sub rax, r10
+	ret
