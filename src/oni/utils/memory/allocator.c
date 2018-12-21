@@ -30,8 +30,6 @@ void* k_malloc(size_t size)
 	if (!size)
 		size = sizeof(uint64_t);
 
-	WriteLog(LL_Debug, "k_alloc size (%llx)", size);
-
 	uint8_t* data = kmalloc(size + sizeof(uint64_t));
 	if (!data)
 		return NULL;
@@ -39,16 +37,12 @@ void* k_malloc(size_t size)
 	// Set our pointer header
 	(*(uint64_t*)data) = size;
 
-	WriteLog(LL_Debug, "set header size");
-
 	// Return the start of the requested data
 	return data + sizeof(uint64_t);
 }
 
 void k_free(void* address)
 {
-	WriteLog(LL_Debug, "k_free %p", address);
-
 	if (!address)
 		return;
 
@@ -57,11 +51,6 @@ void k_free(void* address)
 	uint64_t size = *(uint64_t*)data;
 
 	kfree(data, size);
-
-	/*void (*free)(void *addr, struct malloc_type *type) = kdlsym(free);
-	void* M_TEMP = kdlsym(M_TEMP);
-
-	free(address, M_TEMP);*/
 }
 
 void* kcalloc(size_t n, size_t size)
