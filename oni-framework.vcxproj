@@ -64,9 +64,9 @@
     <ClInclude Include="include\oni\framework.h" />
     <ClInclude Include="include\oni\init\framework.h" />
     <ClInclude Include="include\oni\init\initparams.h" />
-    <ClInclude Include="include\oni\messaging\message.h" />
     <ClInclude Include="include\oni\messaging\messagecategory.h" />
     <ClInclude Include="include\oni\messaging\messagemanager.h" />
+    <ClInclude Include="include\oni\messaging\pbcontainer.h" />
     <ClInclude Include="include\oni\plugins\plugin.h" />
     <ClInclude Include="include\oni\plugins\pluginmanager.h" />
     <ClInclude Include="include\oni\rpc\pbconnection.h" />
@@ -106,6 +106,7 @@
     <ClCompile Include="src\oni\boot\patches\patches505.c" />
     <ClCompile Include="src\oni\messaging\messagecategory.c" />
     <ClCompile Include="src\oni\messaging\messagemanager.c" />
+    <ClCompile Include="src\oni\messaging\pbcontainer.c" />
     <ClCompile Include="src\oni\plugins\pluginmanager.c" />
     <ClCompile Include="src\oni\rpc\pbconnection.c" />
     <ClCompile Include="src\oni\rpc\pbserver.c" />

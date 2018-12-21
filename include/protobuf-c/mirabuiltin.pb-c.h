@@ -15,96 +15,93 @@ PROTOBUF_C__BEGIN_DECLS
 #endif
 
 
-	typedef struct _MessageHeader MessageHeader;
+typedef struct _PbMessage PbMessage;
 
 
 /* --- enums --- */
 
 /*
-* This holds each kind of message request that will be going through mira
-*/
+ * This holds each kind of message request that will be going through mira
+ */
 typedef enum _MessageCategory {
-	/*
-	* This is used for no message category
-	*/
-	MESSAGE_CATEGORY__NONE = 0,
-	/*
-	* System messages
-	*/
-	MESSAGE_CATEGORY__SYSTEM = 1,
-	/*
-	* Logging messages
-	*/
-	MESSAGE_CATEGORY__LOG = 2,
-	/*
-	* Debugger messages
-	*/
-	MESSAGE_CATEGORY__DEBUG = 3,
-	/*
-	* File manager messages
-	*/
-	MESSAGE_CATEGORY__FILE = 4,
-	/*
-	* Generic command messages
-	*/
-	MESSAGE_CATEGORY__CMD = 5,
-	/*
-	* THIS MUST ALWAYS BE THE LAST
-	*/
-	MESSAGE_CATEGORY__MAX = 6
-	PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(MESSAGE_CATEGORY)
+  /*
+   * This is used for no message category
+   */
+  MESSAGE_CATEGORY__NONE = 0,
+  /*
+   * System messages
+   */
+  MESSAGE_CATEGORY__SYSTEM = 1,
+  /*
+   * Logging messages
+   */
+  MESSAGE_CATEGORY__LOG = 2,
+  /*
+   * Debugger messages
+   */
+  MESSAGE_CATEGORY__DEBUG = 3,
+  /*
+   * File manager messages
+   */
+  MESSAGE_CATEGORY__FILE = 4,
+  /*
+   * Generic command messages
+   */
+  MESSAGE_CATEGORY__CMD = 5,
+  /*
+   * THIS MUST ALWAYS BE THE LAST
+   */
+  MESSAGE_CATEGORY__MAX = 6
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(MESSAGE_CATEGORY)
 } MessageCategory;
 
 /* --- messages --- */
 
-/*
-* The header of each message
-*/
-struct  _MessageHeader
+struct  _PbMessage
 {
-	ProtobufCMessage base;
-	/*
-	* The category of each message
-	*/
-	MessageCategory category;
-	/*
-	* The message type (CRC32(<Message Type Name>))
-	*/
-	uint32_t type;
-	/*
-	* The error code, 0 on success
-	*/
-	int32_t error;
+  ProtobufCMessage base;
+  /*
+   * The category of each message
+   */
+  MessageCategory category;
+  /*
+   * The message type (CRC32(<Message Type Name>))
+   */
+  uint32_t type;
+  /*
+   * The self contained protobuf message
+   */
+  ProtobufCBinaryData data;
 };
-#define MESSAGE_HEADER__INIT \
- { PROTOBUF_C_MESSAGE_INIT (&message_header__descriptor) \
-    , 0, 0, 0 }
+#define PB_MESSAGE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&pb_message__descriptor) \
+    , 0, 0, {0,NULL} }
 
 
-/* MessageHeader methods */
-void   message_header__init
-(MessageHeader         *message);
-size_t message_header__get_packed_size
-(const MessageHeader   *message);
-size_t message_header__pack
-(const MessageHeader   *message,
-	uint8_t             *out);
-size_t message_header__pack_to_buffer
-(const MessageHeader   *message,
-	ProtobufCBuffer     *buffer);
-MessageHeader *
-message_header__unpack
-(ProtobufCAllocator  *allocator,
-	size_t               len,
-	const uint8_t       *data);
-void   message_header__free_unpacked
-(MessageHeader *message,
-	ProtobufCAllocator *allocator);
+/* PbMessage methods */
+void   pb_message__init
+                     (PbMessage         *message);
+size_t pb_message__get_packed_size
+                     (const PbMessage   *message);
+size_t pb_message__pack
+                     (const PbMessage   *message,
+                      uint8_t             *out);
+size_t pb_message__pack_to_buffer
+                     (const PbMessage   *message,
+                      ProtobufCBuffer     *buffer);
+PbMessage *
+       pb_message__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   pb_message__free_unpacked
+                     (PbMessage *message,
+                      ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
-typedef void(*MessageHeader_Closure)
-(const MessageHeader *message,
-	void *closure_data);
+typedef void (*PbMessage_Closure)
+                 (const PbMessage *message,
+                  void *closure_data);
 
 /* --- services --- */
 
@@ -112,7 +109,7 @@ typedef void(*MessageHeader_Closure)
 /* --- descriptors --- */
 
 extern const ProtobufCEnumDescriptor    message_category__descriptor;
-extern const ProtobufCMessageDescriptor message_header__descriptor;
+extern const ProtobufCMessageDescriptor pb_message__descriptor;
 
 PROTOBUF_C__END_DECLS
 

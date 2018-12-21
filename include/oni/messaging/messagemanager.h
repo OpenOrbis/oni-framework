@@ -7,7 +7,8 @@
 #define RPCDISPATCHER_MAX_CATEGORIES	32
 
 struct messagecategory_t;
-struct ref_t;
+struct pbcontainer_t;
+typedef struct pbcontainer_t PbContainer;
 
 struct messagemanager_t
 {
@@ -28,7 +29,7 @@ int32_t messagemanager_registerCallback(struct messagemanager_t* manager, uint32
 int32_t messagemanager_unregisterCallback(struct messagemanager_t* manager, int32_t callbackCategory, int32_t callbackType, void* callback);
 
 // Sents a request
-void messagemanager_sendRequest(struct ref_t* message);
+void messagemanager_sendRequest(PbContainer* container);
 
 // Sends the reply back to the socket
-void messagemanager_sendResponse(struct ref_t* message);
+void messagemanager_sendResponse(PbContainer* container);

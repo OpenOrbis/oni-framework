@@ -1,6 +1,6 @@
 #include <oni/messaging/messagemanager.h>
 #include <oni/messaging/messagecategory.h>
-#include <oni/messaging/message.h>
+#include <oni/messaging/pbcontainer.h>
 #include <oni/utils/sys_wrappers.h>
 #include <oni/utils/memory/allocator.h>
 #include <oni/utils/logger.h>
@@ -196,7 +196,7 @@ int32_t messagemanager_unregisterCallback(struct messagemanager_t* manager, int3
 	return false;
 }
 
-void messagemanager_sendResponse(struct ref_t* msg)
+void messagemanager_sendResponse(PbContainer* container)
 /*
 	messagemanager_sendResponse
 
@@ -205,79 +205,99 @@ void messagemanager_sendResponse(struct ref_t* msg)
 	This function send the message header and then the payload data
 */
 {
-	if (!msg)
+	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
+
+	if (!container)
 		return;
 
-	uint8_t* messageData = ref_getDataAndAcquire(msg);
-	if (!messageData)
-	{
-		WriteLog(LL_Error, "there is no message data...");
-		goto cleanup;
-	}
-
-	uint32_t messageDataSize = ref_getSize(msg);
-	if (messageDataSize == 0)
-	{
-		WriteLog(LL_Error, "invalid message size");
-		goto cleanup;
-	}
-
-	WriteLog(LL_Debug, "writing message (%p) data back of size (%llx).", messageData, messageDataSize);
+	if (!container->message)
+		return;
 
 	struct pbserver_t* rpcServer = gFramework->rpcServer;
 
 	int32_t connectionSocket = pbserver_findSocketFromThread(rpcServer, curthread);
 
 	WriteLog(LL_Debug, "connection socket found: %d", connectionSocket);
+	if (connectionSocket < 0)
+		return;
 
-	// Send the response back over the socket
-	if (connectionSocket > 0)
+	// Acquire a reference, from now on we need to goto cleanup
+	pbcontainer_acquire(container);
+
+	PbMessage* message = container->message;
+
+	// Get the size of the packed message
+	uint64_t messageSize = pb_message__get_packed_size(message);
+	uint64_t maxMessageSize = PAGE_SIZE * 2;
+	uint8_t* messageData = NULL;
+	if (messageSize >= maxMessageSize)
 	{
-		// Send response back to the PC
-		ssize_t ret = kwrite(connectionSocket, &messageDataSize, sizeof(messageDataSize));
-		if (ret < 0)
-		{
-			WriteLog(LL_Error, "could not write message size");
-			goto cleanup;
-		}
+		WriteLog(LL_Error, "message size (%llx) is greater than max (%llx).", messageSize, maxMessageSize);
+		goto cleanup;
+	}
 
-		// Write the message data
-		ret = kwrite(connectionSocket, messageData, messageDataSize);
-		if (ret < 0)
-		{
-			WriteLog(LL_Error, "could not write (%p) message header (%d).", messageData, ret);
-			goto cleanup;
-		}
+	// Allocate data to send
+	messageData = k_malloc(messageSize);
+	if (!messageData)
+	{
+		WriteLog(LL_Error, "could not allocate message data");
+		goto cleanup;
+	}
+	memset(messageData, 0, messageSize);
+
+	// Pack the message
+	uint64_t packedMessageSize = pb_message__pack(message, messageData);
+	if(messageSize != packedMessageSize)
+	{
+		WriteLog(LL_Error, "message size (%llx) does not match packed message size (%llx).", messageSize, packedMessageSize);
+		goto cleanup;
+	}
+
+	// We need to write the 8 byte uint64_t
+	ssize_t ret = kwrite(connectionSocket, &packedMessageSize, sizeof(packedMessageSize));
+	if (ret < 0)
+	{
+		WriteLog(LL_Error, "could not write message size.");
+		goto cleanup;
+	}
+
+	// Write the actual data
+	ret = kwrite(connectionSocket, messageData, messageSize);
+	if (ret < 0)
+	{
+		WriteLog(LL_Error, "could not write message (%p) (%llx).", messageData, messageSize);
+		goto cleanup;
 	}
 
 cleanup:
-	ref_release(msg);
+	// Free the message data
+	if (messageData)
+		k_free(messageData);
+
+	// Release the container reference
+	pbcontainer_release(container);
 }
 
-void messagemanager_sendRequest(struct ref_t* msg)
+void messagemanager_sendRequest(PbContainer* container)
 {
 	// Verify the message manager and message are valid
-	if (!gFramework || !gFramework->messageManager || !msg)
+	if (!gFramework || !gFramework->messageManager || !container)
+		return;
+
+	if (!container->message)
+		return;
+
+	PbMessage* header = container->message;
+
+	struct pbserver_t* rpcServer = gFramework->rpcServer;
+
+	int32_t connectionSocket = pbserver_findSocketFromThread(rpcServer, curthread);
+
+	WriteLog(LL_Debug, "connection socket found: %d", connectionSocket);
+	if (connectionSocket < 0)
 		return;
 
 	struct messagemanager_t* manager = gFramework->messageManager;
-	MessageHeader* header = NULL;
-
-	uint8_t* messageData = ref_getDataAndAcquire(msg);
-	if (!messageData)
-		goto cleanup;
-
-	size_t messageDataSize = ref_getSize(msg);
-	if (messageDataSize < sizeof(MessageHeader))
-		goto cleanup;
-
-	// Decode the message header
-	header = message_header__unpack(NULL, messageDataSize, messageData);
-	if (!header)
-	{
-		WriteLog(LL_Error, "could not decode header.");
-		goto cleanup;
-	}
 
 	// Validate our message category
 	MessageCategory headerCategory = header->category;
@@ -309,16 +329,10 @@ void messagemanager_sendRequest(struct ref_t* msg)
 			continue;
 
 		// Call the callback with the provided message
-		WriteLog(LL_Debug, "[+] calling callback %p(%p)", l_Callback->callback, msg);
-		l_Callback->callback(msg);
+		WriteLog(LL_Debug, "[+] calling callback %p(%p)", l_Callback->callback, container);
+		l_Callback->callback(container);
 	}
 
-cleanup:
-	if (header)
-	{
-		message_header__free_unpacked(header, NULL);
-		header = NULL;
-	}
-		
-	ref_release(msg);
+cleanup:		
+	pbcontainer_release(container);
 }

@@ -12,6 +12,12 @@
 #include <oni/init/initparams.h>
 #include <string.h>
 
+#include <oni/messaging/pbcontainer.h>
+
+/// <summary>
+/// Initializes a pbconnection structure
+/// </summary>
+/// <param name="connection">Connection</param>
 void pbconnection_init(struct pbconnection_t* connection)
 {
 	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
@@ -29,13 +35,17 @@ void pbconnection_init(struct pbconnection_t* connection)
 	connection->running = false;
 }
 
+/// <summary>
+/// The main thread loop that each connection will run
+/// </summary>
+/// <param name="connection">Connection</param>
 void pbconnection_thread(struct pbconnection_t* connection)
 {
 	void(*kthread_exit)(void) = kdlsym(kthread_exit);
 	void(*_mtx_lock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_lock_flags);
 	void(*_mtx_unlock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_unlock_flags);
 	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
-	void* (*memcpy)(void* dest, const void* src, size_t n) = kdlsym(memcpy);
+	//void* (*memcpy)(void* dest, const void* src, size_t n) = kdlsym(memcpy);
 
 	if (!connection)
 		return;
@@ -53,13 +63,13 @@ void pbconnection_thread(struct pbconnection_t* connection)
 
 	connection->running = true;
 
-	const uint32_t maxMessageSize = PAGE_SIZE * 2;
-	uint8_t* data = NULL;
+	const uint64_t maxMessageSize = PAGE_SIZE * 2;
 	while (connection->running)
 	{
-		uint32_t dataLength = 0;
-		data = NULL;
+		uint64_t dataLength = 0;
+		uint8_t* data = NULL;
 
+		// Read the data length size
 		ssize_t result = krecv(connection->socket, &dataLength, sizeof(dataLength), 0);
 
 		// Verify the recv worked successfully
@@ -128,26 +138,28 @@ void pbconnection_thread(struct pbconnection_t* connection)
 			bufferRecv += result;
 		}
 
-		WriteLog(LL_Warn, "gKernelBase: %p", gKernelBase);
-		WriteLog(LL_Warn, "payloadBase: %p", gInitParams->payloadBase);
-		WriteLog(LL_Warn, "dataLength: %d, data: %p", dataLength, data);
-		WriteLog(LL_Warn, "\n\n\n\n\n");
-
-
 		// Decode the message header		
-		uint8_t buf[1024];
-		memset(buf, 0, sizeof(buf));
-		memcpy(buf, data, dataLength);
-
-		MessageHeader* header = message_header__unpack(NULL, dataLength, buf);
-		if (!header)
+		PbMessage* pbMessage = pb_message__unpack(NULL, dataLength, data);
+		if (!pbMessage)
 		{
 			WriteLog(LL_Error, "could not decode header\n");
 			goto disconnect;
 		}
 
+		// We no longer need the original buffer, free it as soon as possible
+		k_free(data);
+		data = NULL;
+
+		PbContainer* container = pbcontainer_create(pbMessage);
+		if (!container)
+		{
+			pb_message__free_unpacked(pbMessage, NULL);
+			WriteLog(LL_Error, "could not allocate pbcontainer memory.");
+			goto disconnect;
+		}
+
 		// Validate the message category
-		MessageCategory category = header->category;
+		MessageCategory category = pbMessage->category;
 
 		if (category < MESSAGE_CATEGORY__NONE || category > MESSAGE_CATEGORY__MAX) // TODO: Add Max
 		{
@@ -155,30 +167,11 @@ void pbconnection_thread(struct pbconnection_t* connection)
 			goto disconnect;
 		}
 
-		// Validate the error code
-		if (header->error != 0)
-		{
-			WriteLog(LL_Error, "error should not be set on requests (%d).", header->error);
-			goto disconnect;
-		}
-
-		// Free our protobuf thing
-		message_header__free_unpacked(header, NULL);
-
-		// This creates a copy of the data
-		struct ref_t* reference = ref_fromObject(data, dataLength);
-
-		if (!reference)
-		{
-			WriteLog(LL_Error, "could not create new reference of data");
-			goto disconnect;
-		}
-
 		// TODO: You will have to change endpoint to accept protobuf
-		messagemanager_sendRequest(reference);
+		messagemanager_sendRequest(container);
 
 		// We no longer need to hold this reference
-		ref_release(reference);
+		pbcontainer_release(container);
 	}
 
 disconnect:
