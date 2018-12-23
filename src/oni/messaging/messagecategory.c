@@ -1,6 +1,5 @@
 
 #include <oni/messaging/messagecategory.h>
-#include <oni/messaging/message.h>
 
 #include <oni/utils/kdlsym.h>
 #include <oni/utils/memory/allocator.h>

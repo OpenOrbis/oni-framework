@@ -3,6 +3,7 @@
 
 #include <oni/utils/memory/allocator.h>
 #include <oni/utils/kdlsym.h>
+#include <oni/utils/logger.h>
 
 PbContainer* pbcontainer_create(PbMessage* message)
 {
@@ -33,14 +34,24 @@ PbContainer* pbcontainer_create(PbMessage* message)
 PbContainer* pbcontainer_create2(MessageCategory category, int32_t type, uint8_t* data, uint64_t dataSize)
 {
 	if (category <= 0 || category >= MESSAGE_CATEGORY__MAX)
+	{
+		WriteLog(LL_Error, "category is out of bounds");
 		return NULL;
+	}
 
 	if (!data || dataSize == 0)
+	{
+		WriteLog(LL_Error, "data or size is invalid (%p) (%llx)", data, dataSize);
 		return NULL;
+	}
+
 	static PbMessage init_value = PB_MESSAGE__INIT;
 	PbMessage* message = (PbMessage*)k_malloc(sizeof(PbMessage));
 	if (!message)
+	{
+		WriteLog(LL_Error, "could not allocate PbMessage");
 		return NULL;
+	}
 
 	*message = init_value;
 
@@ -52,6 +63,7 @@ PbContainer* pbcontainer_create2(MessageCategory category, int32_t type, uint8_t
 	PbContainer* container = pbcontainer_create(message);
 	if (!container)
 	{
+		WriteLog(LL_Error, "pbcontainer_create returned null.");
 		k_free(message);
 		return NULL;
 	}
@@ -96,14 +108,6 @@ void pbcontainer_release(PbContainer* container)
 		PbMessage* msg = container->message;
 		if (!msg)
 			return;
-
-		// Free the internal data
-		if (msg->data.data)
-		{
-			k_free(msg->data.data);
-			msg->data.data = NULL;
-			msg->data.len = 0;
-		}
 
 		// Free the protobuf message
 		pb_message__free_unpacked(msg, NULL);
