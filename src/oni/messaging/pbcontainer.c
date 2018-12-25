@@ -8,7 +8,6 @@
 PbContainer* pbcontainer_create(PbMessage* message)
 {
 	void* (*memset)(void *s, int c, size_t n) = kdlsym(memset);
-	void(*mtx_init)(struct mtx *m, const char *name, const char *type, int opts) = kdlsym(mtx_init);
 
 	if (!message)
 		return NULL;
@@ -21,9 +20,6 @@ PbContainer* pbcontainer_create(PbMessage* message)
 	memset(container, 0, sizeof(*container));
 
 	container->message = message;
-
-	// Initialize the lock
-	mtx_init(&container->lock, "pbcmtx", NULL, 0);
 	
 	// Set the current reference count
 	container->count = 1;
@@ -33,11 +29,15 @@ PbContainer* pbcontainer_create(PbMessage* message)
 
 PbContainer* pbcontainer_create2(MessageCategory category, int32_t type, uint8_t* data, uint64_t dataSize)
 {
+	WriteLog(LL_Warn, "here");
+
 	if (category <= 0 || category >= MESSAGE_CATEGORY__MAX)
 	{
 		WriteLog(LL_Error, "category is out of bounds");
 		return NULL;
 	}
+
+	WriteLog(LL_Warn, "here");
 
 	if (!data || dataSize == 0)
 	{
@@ -46,6 +46,8 @@ PbContainer* pbcontainer_create2(MessageCategory category, int32_t type, uint8_t
 	}
 
 	static PbMessage init_value = PB_MESSAGE__INIT;
+	WriteLog(LL_Warn, "here");
+
 	PbMessage* message = (PbMessage*)k_malloc(sizeof(PbMessage));
 	if (!message)
 	{
@@ -53,12 +55,18 @@ PbContainer* pbcontainer_create2(MessageCategory category, int32_t type, uint8_t
 		return NULL;
 	}
 
+	WriteLog(LL_Warn, "here");
+
 	*message = init_value;
+
+	WriteLog(LL_Warn, "here");
 
 	message->category = category;
 	message->type = type;
 	message->data.data = data;
 	message->data.len = dataSize;
+
+	WriteLog(LL_Warn, "here");
 
 	PbContainer* container = pbcontainer_create(message);
 	if (!container)
@@ -68,22 +76,17 @@ PbContainer* pbcontainer_create2(MessageCategory category, int32_t type, uint8_t
 		return NULL;
 	}
 
+	WriteLog(LL_Warn, "here");
+
 	return container;
 }
 
 void pbcontainer_acquire(PbContainer* container)
 {
-	void(*_mtx_lock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_lock_flags);
-	void(*_mtx_unlock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_unlock_flags);
-
 	if (!container)
 		return;
 
-	_mtx_lock_flags(&container->lock, 0, __FILE__, __LINE__);
-	
-	container->count += 1;
-
-	_mtx_unlock_flags(&container->lock, 0, __FILE__, __LINE__);
+	__sync_fetch_and_add(&container->count, 1);
 
 }
 
@@ -92,18 +95,13 @@ void pbcontainer_release(PbContainer* container)
 	if (!container)
 		return;
 
-	void(*_mtx_lock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_lock_flags);
-	void(*_mtx_unlock_flags)(struct mtx *m, int opts, const char *file, int line) = kdlsym(_mtx_unlock_flags);
-
 	if (!container)
 		return;
 
-	_mtx_lock_flags(&container->lock, 0, __FILE__, __LINE__);
-
-	container->count -= 1;
+	WriteLog(LL_Debug, "container %p count %d", container, container->count);
 
 	// If the current reference count is <= 0 free everything
-	if (container->count <= 0)
+	if (__sync_sub_and_fetch(&container->count, 1) <= 0)
 	{
 		PbMessage* msg = container->message;
 		if (!msg)
@@ -111,12 +109,8 @@ void pbcontainer_release(PbContainer* container)
 
 		// Free the protobuf message
 		pb_message__free_unpacked(msg, NULL);
-		container->count = 0;
-	}
+		container->message = NULL;
 
-	_mtx_unlock_flags(&container->lock, 0, __FILE__, __LINE__);
-
-	// Free the container itself
-	if (container->count <= 0)
 		k_free(container);
+	}
 }

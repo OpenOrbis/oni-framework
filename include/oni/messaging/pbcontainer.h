@@ -15,8 +15,6 @@ typedef struct pbcontainer_t
 {
 	PbMessage* message;
 
-	struct mtx lock;
-
 	// DO NOT FUCKING TOUCH THIS VARIABLE DIRECTLY, USE THE FUCKING
 	// ACQUIRE/RELEASE METHODS U FUCKING SCRUB
 	volatile int32_t count;
