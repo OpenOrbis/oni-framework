@@ -366,18 +366,22 @@ int32_t pbserver_findSocketFromThread(struct pbserver_t* server, struct thread* 
 	if (!server || !td)
 		return -1;
 
-	int32_t foundIndex = -1;
+	int32_t foundSocket = -1;
 
 	_mtx_lock_flags(&server->connectionsLock, 0, "", 0);
 	for (size_t index = 0; index < ARRAYSIZE(server->connections); index++)
 	{
-		if (server->connections[index]->thread == td)
+		struct pbconnection_t* connection = server->connections[index];
+		if (connection == NULL)
+			continue;
+
+		if (connection->thread == td)
 		{
-			foundIndex = index;
+			foundSocket = connection->socket;
 			break;
 		}
 	}
 	_mtx_unlock_flags(&server->connectionsLock, 0, "", 0);
 
-	return foundIndex;
+	return foundSocket;
 }

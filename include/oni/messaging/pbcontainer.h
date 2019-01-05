@@ -18,10 +18,17 @@ typedef struct pbcontainer_t
 	// DO NOT FUCKING TOUCH THIS VARIABLE DIRECTLY, USE THE FUCKING
 	// ACQUIRE/RELEASE METHODS U FUCKING SCRUB
 	volatile int32_t count;
+
+	uint8_t messageOwned;
 } PbContainer;
 
-PbContainer* pbcontainer_create(PbMessage* message);
-PbContainer* pbcontainer_create2(MessageCategory category, int32_t type, uint8_t* data, uint64_t dataSize);
+/// <summary>
+/// pbcontainer_create
+/// messageOwned is set to true when WE allocate a PbMessage with k_malloc,
+/// if it is from pb_message__unpack we set to false
+/// </summary>
+PbContainer* pbcontainer_create(PbMessage* message, uint8_t messageOwned);
+PbContainer* pbcontainer_createNew(MessageCategory category, int32_t type, uint8_t* data, uint64_t dataSize);
 
 void pbcontainer_acquire(PbContainer* container);
 

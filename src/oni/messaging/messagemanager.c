@@ -287,15 +287,15 @@ void messagemanager_sendRequest(PbContainer* container)
 	if (!container->message)
 		return;
 
+	pbcontainer_acquire(container);
+
 	PbMessage* header = container->message;
 
-	struct pbserver_t* rpcServer = gFramework->rpcServer;
+	//int32_t connectionSocket = pbserver_findSocketFromThread(gFramework->rpcServer, curthread);
 
-	int32_t connectionSocket = pbserver_findSocketFromThread(rpcServer, curthread);
-
-	WriteLog(LL_Debug, "connection socket found: %d", connectionSocket);
-	if (connectionSocket < 0)
-		return;
+	//WriteLog(LL_Debug, "connection socket found: %d", connectionSocket);
+	//if (connectionSocket < 0)
+	//	goto cleanup;
 
 	struct messagemanager_t* manager = gFramework->messageManager;
 

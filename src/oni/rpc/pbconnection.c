@@ -150,7 +150,7 @@ void pbconnection_thread(struct pbconnection_t* connection)
 		k_free(data);
 		data = NULL;
 
-		PbContainer* container = pbcontainer_create(pbMessage);
+		PbContainer* container = pbcontainer_create(pbMessage, false);
 		if (!container)
 		{
 			pb_message__free_unpacked(pbMessage, NULL);
@@ -160,14 +160,14 @@ void pbconnection_thread(struct pbconnection_t* connection)
 
 		// Validate the message category
 		MessageCategory category = pbMessage->category;
-
 		if (category < MESSAGE_CATEGORY__NONE || category > MESSAGE_CATEGORY__MAX) // TODO: Add Max
 		{
+			pbcontainer_release(container);
 			WriteLog(LL_Error, "invalid category (%d).", category);
 			goto disconnect;
 		}
 
-		// TODO: You will have to change endpoint to accept protobuf
+		// Send the protobuf request off through the message system
 		messagemanager_sendRequest(container);
 
 		// We no longer need to hold this reference

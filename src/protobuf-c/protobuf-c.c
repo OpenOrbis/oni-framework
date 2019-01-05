@@ -45,12 +45,10 @@
  * \todo Use size_t consistently.
  */
 
-#include <stdlib.h>	/* for malloc, free */
-#include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
+//#include <stdlib.h>	/* for malloc, free */
+//#include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
 
 #include <protobuf-c/protobuf-c.h>
-#include <oni/utils/memory/allocator.h>
-#include <oni/utils/kernel.h>
 
 #define TRUE				1
 #define FALSE				0
@@ -1047,7 +1045,7 @@ prefixed_message_pack(const ProtobufCMessage *message, uint8_t *out)
 		size_t rv = protobuf_c_message_pack(message, out + 1);
 		uint32_t rv_packed_size = uint32_size(rv);
 		if (rv_packed_size != 1)
-			(void)memmove(out + rv_packed_size, out + 1, rv);
+			memmove(out + rv_packed_size, out + 1, rv);
 		return uint32_pack(rv, out) + rv;
 	}
 }
@@ -1438,7 +1436,7 @@ repeated_field_pack(const ProtobufCFieldDescriptor *field,
 		actual_length_size = uint32_size(payload_len);
 		if (length_size_min != actual_length_size) {
 			assert(actual_length_size == length_size_min + 1);
-			(void)memmove(out + header_len + 1, out + header_len,
+			memmove(out + header_len + 1, out + header_len,
 				payload_len);
 			header_len++;
 		}
@@ -1927,7 +1925,7 @@ repeated_field_pack_to_buffer(const ProtobufCFieldDescriptor *field,
 		buffer->append(buffer, rv, scratch);
 		tmp = pack_buffer_packed_payload(field, count, array, buffer);
 		assert(tmp == payload_len);
-		if (tmp != payload_len)__asm__("nop");
+		if (tmp) {}
 		return rv + payload_len;
 	} else {
 		size_t siz;
@@ -2321,7 +2319,7 @@ merge_messages(ProtobufCMessage *earlier_msg,
 				 * message, earlier message will be freed after
 				 * this function is called anyway
 				 */
-				(void)memset(earlier_elem, 0, el_size);
+				memset(earlier_elem, 0, el_size);
 
 				if (field->quantifier_offset != 0) {
 					/* Set the has field or the case enum,
@@ -2672,7 +2670,7 @@ parse_oneof_member (ScannedMember *scanned_member,
 			break;
 		}
 
-		(void)memset (member, 0, el_size);
+		memset (member, 0, el_size);
 	}
 	if (!parse_required_member (scanned_member, member, allocator, TRUE))
 		return FALSE;
@@ -2934,7 +2932,7 @@ message_init_generic(const ProtobufCMessageDescriptor *desc,
 {
 	unsigned i;
 
-	(void)memset(message, 0, desc->sizeof_message);
+	memset(message, 0, desc->sizeof_message);
 	message->descriptor = desc;
 	for (i = 0; i < desc->n_fields; i++) {
 		if (desc->fields[i].default_value != NULL &&
@@ -3061,7 +3059,7 @@ protobuf_c_message_unpack(const ProtobufCMessageDescriptor *desc,
 		}
 		required_fields_bitmap_alloced = TRUE;
 	}
-	(void)memset(required_fields_bitmap, 0, required_fields_bitmap_len);
+	memset(required_fields_bitmap, 0, required_fields_bitmap_len);
 
 	/*
 	 * Generated code always defines "message_init". However, we provide a
@@ -3520,7 +3518,7 @@ protobuf_c_service_generated_init(ProtobufCService *service,
 	service->descriptor = descriptor;
 	service->destroy = destroy;
 	service->invoke = protobuf_c_service_invoke_internal;
-	(void)memset(service + 1, 0, descriptor->n_methods * sizeof(GenericHandler));
+	memset(service + 1, 0, descriptor->n_methods * sizeof(GenericHandler));
 }
 
 void protobuf_c_service_destroy(ProtobufCService *service)

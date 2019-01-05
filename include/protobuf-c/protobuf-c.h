@@ -196,15 +196,24 @@ size_t foo__bar__baz_bah__pack_to_buffer
 #ifndef PROTOBUF_C_H
 #define PROTOBUF_C_H
 
+#include <oni/utils/kdlsym.h>
+#include <oni/utils/kernel.h>
+#include <oni/utils/logger.h>
+#include <oni/utils/memory/allocator.h>
+
+#ifndef assert
+#define assert(x) WriteLog(LL_Error, #x);
+#endif
+
+#ifndef INT_MAX
+#define INT_MAX 0x7FFFFFFF
+#endif
+
+
 //#include <assert.h>
 //#include <limits.h>
-#include <stddef.h>
+//#include <stddef.h>
 //#include <stdint.h>
-#include <oni/utils/types.h>
-
-#define INT_MAX __INT_MAX__
-
-#define assert(x) 
 
 #ifdef __cplusplus
 # define PROTOBUF_C__BEGIN_DECLS	extern "C" {
@@ -1066,7 +1075,7 @@ do {                                                                    \
 				(simp_buf)->allocator,                  \
 				(simp_buf)->data);			\
 		else                                                    \
-			free((simp_buf)->data);                         \
+			k_free((simp_buf)->data);                         \
 	}                                                               \
 } while (0)
 
