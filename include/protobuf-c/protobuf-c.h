@@ -196,24 +196,74 @@ size_t foo__bar__baz_bah__pack_to_buffer
 #ifndef PROTOBUF_C_H
 #define PROTOBUF_C_H
 
+#ifdef ONI_PLATFORM
 #include <oni/utils/kdlsym.h>
 #include <oni/utils/kernel.h>
 #include <oni/utils/logger.h>
 #include <oni/utils/memory/allocator.h>
 
 #ifndef assert
-#define assert(x) WriteLog(LL_Error, #x);
+#define assert(x) 
+//if ((x) == false) WriteLog(LL_Error, #x)
 #endif
 
 #ifndef INT_MAX
 #define INT_MAX 0x7FFFFFFF
 #endif
 
+#define PB_DECODE(containerObject, capitalType, lowerType, variableName) \
+	pbcontainer_acquire(containerObject); \
+	capitalType* variableName = NULL; { \
+	PbMessage* outerMessage = containerObject->message; \
+	if (!outerMessage) { \
+		WriteLog(LL_Error, "could not get the outer message"); \
+		goto cleanup;	} \
+	size_t innerDataSize = outerMessage->payload.len; \
+	uint8_t* innerData = outerMessage->payload.data; \
+	if (!innerData || innerDataSize == 0) { \
+		WriteLog(LL_Error, "could not get the inner data"); \
+		goto cleanup; } variableName = lowerType ## __unpack(NULL, innerDataSize, innerData); \
+	if (variableName == NULL){ WriteLog(LL_Error, "could not decode %s.", #capitalType ); goto cleanup; } }
 
-//#include <assert.h>
-//#include <limits.h>
-//#include <stddef.h>
-//#include <stdint.h>
+#define PB_ENCODE(fromContainer, message, messageCategory, messageCommand, lowerType, outputContainerName) \
+	PbContainer* outputContainerName = NULL; \
+	{ size_t packedSize = lowerType ## __get_packed_size(&message); \
+		uint8_t* responseData = k_malloc(packedSize); \
+		if (responseData == NULL) \
+		{ WriteLog(LL_Error, "could not allocate response data"); \
+			goto cleanup; \
+		} (void) lowerType ## __pack(&message, responseData); \
+		PbMessage* responseMessage = k_malloc(sizeof(PbMessage)); \
+		if (responseMessage == NULL) \
+		{ WriteLog(LL_Error, "could not allocate response message"); \
+			goto cleanup; \
+		} static PbMessage pb_message_init = PB_MESSAGE__INIT; \
+		*responseMessage = pb_message_init; \
+		responseMessage->category = messageCategory; \
+		responseMessage->type = messageCommand; \
+		responseMessage->payload.data = responseData; \
+		responseMessage->payload.len = packedSize; \
+		outputContainerName = pbcontainer_create(responseMessage, true); \
+		if (outputContainerName == NULL) \
+		{k_free(responseMessage); \
+			responseMessage = NULL; \
+			k_free(responseData); \
+			responseData = NULL; \
+			WriteLog(LL_Error, "could not allocate response container"); \
+			goto cleanup; \
+		}	}
+
+#define PB_RELEASE(containerObject) \
+	cleanup: \
+		pbcontainer_release(containerObject);
+#else
+
+#include <assert.h>
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#endif
 
 #ifdef __cplusplus
 # define PROTOBUF_C__BEGIN_DECLS	extern "C" {
